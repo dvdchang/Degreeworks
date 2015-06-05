@@ -1,0 +1,1438 @@
+<$ILENVMASK DWDEBUG=1>
+<!-- 
+ Copyright 1995-2012 Ellucian Company L.P. and its affiliates. 
+ $Id: //Tuxedo/RELEASE/Product/server/shpscripts/SD2WIFBODY#4 $ -->
+</$ILENVMASK>
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">                 
+<$ILMASK SERVICE=SDWHATIF>
+<html lang="en">                                                                
+<head>                                                                          
+<!$ILINCLUDE SCRIPT=SD2INCHD1>                                                  
+    <title>What-If Audit</title>                                                
+    <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1" />  
+    <meta http-equiv="Content-Language" content="en" />                         
+    <link rel="stylesheet" type="text/css" href="DGW_Style.css">                
+</head>                                                                         
+<script language="JavaScript" src="DGW_Functions.js"></script>                  
+<script language="JavaScript" src="DGW_LookAhead.js"></script>                  
+<noscript>JavaScript is Required!</noscript>                                    
+<script language="JavaScript">                                                  
+// 1.04 begin                                                                   
+bShowLookAheadSection = false;                                                  
+<$ILUCXMASK SRC=UCXCFG020 KEY=WHATIF BYTES=47:1 value=Y>                           
+bShowLookAheadSection = true;                                                   
+// Used by DGW_LookAhead.js                                                     
+sDisciplineLit = Trim ("<$ILUCX SRC=UCXSCR001 KEY=DISCIPLINE BYTES=1:30>");        
+sNumberLit     = Trim ("<$ILUCX SRC=UCXSCR001 KEY=NUMBER     BYTES=1:30>");        
+</$ILUCXMASK>                                                                   
+// 1.04 end                                                                     
+
+    //////////////////////////////////////////////////////////////////
+    // Since AUD027 only allows up to 5 degrees we allow an entry ending
+    // in _2 to specify a continuation so that up to 10 degrees can be used
+    // for any particular major.
+    // Example:
+    // Major of ABC can have another ABC_2 entry in AUD027 with extra degrees.
+    //////////////////////////////////////////////////////////////////                                                                                
+    function AddPicklistItem (sMajor, sMajorLit, sCollege, 
+                              sDegree1, sDegree2, sDegree3, sDegree4, sDegree5,
+							                sSchool, sSingleDegree)                         
+    {                                                                           
+      sMajor = Trim (sMajor);
+      // See if this is a continuation of a former item (probably the previous one)
+      if ((sMajor.indexOf ("_2") > 0  || 
+           sMajor.indexOf ("_3") > 0  || 
+           sMajor.indexOf ("_4") > 0 ) &&
+          sAUD027Picklist.length >= 1)
+      {
+		// Find the "base" major in the existing picklist.
+		for (iPicklistIndex = 0; iPicklistIndex < sAUD027Picklist.length ; iPicklistIndex++ )
+		{
+			sThisMajor = sMajor.substring (0, sMajor.length - 2); // MATH_2 -> MATH
+			if (sThisMajor == sAUD027Picklist[iPicklistIndex].major) // if this major is already in the list
+			{
+			/*alert("sThisMajor = " + sThisMajor + "\n" + 
+			      "sMajor = " + sMajor + "\n" + 
+				  "sAUD027Picklist[iPicklistIndex].major = " + sAUD027Picklist[iPicklistIndex].major);*/
+				// We have found the major that we want to give these degrees to.
+				if (sMajor.indexOf ("_2") > 0 )
+				{
+				sAUD027Picklist[iPicklistIndex].degree6  = Trim(sDegree1);
+				sAUD027Picklist[iPicklistIndex].degree7  = Trim(sDegree2);
+				sAUD027Picklist[iPicklistIndex].degree8  = Trim(sDegree3);
+				sAUD027Picklist[iPicklistIndex].degree9  = Trim(sDegree4);
+				sAUD027Picklist[iPicklistIndex].degree10 = Trim(sDegree5);				
+				}
+				else if (sMajor.indexOf ("_3") > 0 )
+        {
+				sAUD027Picklist[iPicklistIndex].degree11  = Trim(sDegree1);
+				sAUD027Picklist[iPicklistIndex].degree12  = Trim(sDegree2);
+				sAUD027Picklist[iPicklistIndex].degree13  = Trim(sDegree3);
+				sAUD027Picklist[iPicklistIndex].degree14  = Trim(sDegree4);
+				sAUD027Picklist[iPicklistIndex].degree15  = Trim(sDegree5);				
+				}
+				else if (sMajor.indexOf ("_4") > 0 )
+          {
+				sAUD027Picklist[iPicklistIndex].degree16  = Trim(sDegree1);
+				sAUD027Picklist[iPicklistIndex].degree17  = Trim(sDegree2);
+				sAUD027Picklist[iPicklistIndex].degree18  = Trim(sDegree3);
+				sAUD027Picklist[iPicklistIndex].degree19  = Trim(sDegree4);
+				sAUD027Picklist[iPicklistIndex].degree20  = Trim(sDegree5);				
+				}
+			break;
+			}
+          }
+        }
+	  
+      else // add this new item
+        {
+        sAUD027Picklist[sAUD027Picklist.length] =
+           new PicklistItem(sMajor, sMajorLit, sCollege, 
+                            sDegree1, sDegree2, sDegree3, sDegree4, sDegree5,
+							sSchool, sSingleDegree);                         
+        }
+    }
+    //////////////////////////////////////////////////////////////////                                                                                
+    function PicklistItem(sMajor, sMajorLit, sCollege, sDegree1, sDegree2,      
+                          sDegree3, sDegree4, sDegree5, sSchool, sSingleDegree)                         
+    {                                                                           
+        this.major = sMajor;                                                    
+        this.majorlit = sMajorLit;                                              
+        this.college = sCollege;                                                
+        this.school = sSchool;                                                
+		    this.singleDegree = sSingleDegree;
+        this.degree1 = Trim(sDegree1);                                                
+        this.degree2 = Trim(sDegree2);                                                
+        this.degree3 = Trim(sDegree3);                                                
+        this.degree4 = Trim(sDegree4);                                                
+        this.degree5 = Trim(sDegree5);                                                
+        this.degree6  = "";
+        this.degree7  = "";
+        this.degree8  = "";
+        this.degree9  = "";
+        this.degree10 = "";
+        this.degree11  = "";
+        this.degree12  = "";
+        this.degree13  = "";
+        this.degree14  = "";
+        this.degree15 = "";
+        this.degree16 = "";
+        this.degree17  = "";
+        this.degree18  = "";
+        this.degree19  = "";
+        this.degree20  = "";
+    }                                                                           
+                                                                                
+    sAUD027Picklist = new Array();                                                 
+    sAUD029Picklist = new Array();                                                 
+                                                                                
+                                                                                
+// Begin UCXAUD027 Picklist                                                        
+<$ILPICK SRC=UCXAUD027 sortbyvalue=1:50                                            
+  text={AddPicklistItem("}                   
+  key=1:12                                                                      
+  text={","}                                                                    
+  value=1:50                                                                    
+  text={","}                                                                    
+  value=101:6                                                                   
+  text={","}                                                                    
+  value=107:12                                                                  
+  text={","}                                                                    
+  value=119:12                                                                  
+  text={","}                                                                    
+  value=131:12                                                                  
+  text={","}                                                                    
+  value=143:12                                                                  
+  text={","}                                                                    
+  value=155:12                                                                  
+  text={","}                                                                    
+  value=84:12                                                                  
+  text={","}                                                                    
+  value=72:12                                                                  
+  text={");}                                                                    
+>                                                                               
+// Begin UCXAUD029 Picklist                                                        
+<$ILPICK SRC=UCXAUD029 sortbyvalue=1:50                                            
+  text={sAUD029Picklist[sAUD029Picklist.length]=new PicklistItem("}                   
+  key=1:12                                                                      
+  text={","}                                                                    
+  value=1:50                                                                    
+  text={","}                                                                    
+  value=101:6                                                                   
+  text={","}                                                                    
+  value=72:12                                                                   
+  text={", "", "", "", "", "", "");}                                                                    
+>                                                                               
+                                                                                
+// 1.1g End                                                                     
+    function SetDefaultValues()                                                 
+    {                                                                           
+        if (bShowLookAheadSection)              // 1.04                         
+            LoadClasses('<$ILCGI-CLASSES>', document.frmWhatIfBody.CLASSES);    
+        var bSetSchool = false;                                                 
+        var bSetDegree = false;                                                 
+        // 1.1i Start                                                           
+        CFG020CatYear = Trim("<$ILUCX SRC=UCXCFG020 KEY=WHATIF BYTES=35:12>");        
+        if (CFG020CatYear == "")                                                   
+        {//Set to student's catalog year                                        
+           SetDefault (document.forms[0].CATYEAR, "<$ILSTU*SDCATYEAR>");        
+        }                                                                       
+        else                                                                    
+        {//Set to catalog year defined in UCXCFG020 WHATIF                         
+           SetDefault (document.forms[0].CATYEAR, CFG020CatYear);                  
+        }                                                                       
+        // 1.1i End                                                             
+        // If we are to Show the school picklist                                
+<$ILUCXMASK SRC=UCXCFG020 KEY=WHATIF BYTES=32:1 value=Y>                           
+        bSetSchool = true;                                                      
+</$ILUCXMASK>                                                                   
+<$ILUCXMASK SRC=UCXCFG020 KEY=WHATIF BYTES=33:1 value=Y>                           
+        bSetDegree = true;                                                      
+</$ILUCXMASK>                                                                   
+<$ILUCXMASK SRC=UCXCFG020 KEY=WHATIF BYTES=2:1 value=D>                            
+        // MajorDrivesDegree=D                                                  
+        bSetDegree = false;                                                     
+        bSetSchool = false;                                                 
+</$ILUCXMASK>                                                                   
+        if (bSetSchool)                                                         
+          SetDefault(document.forms[0].SCHOOL,  "<$ILCGI-STUSCH>");             
+        if (bSetDegree)                                                         
+          SetDefault (document.forms[0].DEGREE,  "<$ILCGI-STUDEG>");            
+<$ILUCXMASK SRC=UCXCFG020 KEY=WHATIF BYTES=1:1 value=M>                            
+        // DegreeDrivesMajor=M                                                  
+<$ILUCXMASK Not SRC=UCXCFG020 KEY=WHATIF BYTES=4:1 value=N>                            
+        FilterPicklists('MAJOR'); // 1.1h                                       
+</$ILUCXMASK>                                                                   
+</$ILUCXMASK>                                                                   
+    }                                                                           
+    function SetDefault(oSelect, sDefaultValue)                                 
+    {                                                                           
+        var iIndex = 0;                                                         
+        if (sDefaultValue.length == 0)                                          
+        {                                                                       
+            return;                                                             
+        }                                                                       
+        if (typeof(oSelect) == "undefined")                                     
+        {                                                                       
+            return;                                                             
+        }                                                                       
+        while (iIndex < oSelect.length)                                         
+        {                                                                       
+            if (Trim(oSelect.options[iIndex].value) == sDefaultValue)           
+            {                                                                   
+                // Select this report as the default                            
+                oSelect.selectedIndex = iIndex;                                 
+            }                                                                   
+            iIndex++;                                                           
+        } // while                                                              
+    } // setdefault                                                             
+
+    ///////////////////////////////////////////////////                         
+    // PROCESSBLOCKS                                                            
+    //                                                                          
+    ///////////////////////////////////////////////////                         
+    function ProcessBlocks()                                                    
+    {                                                                           
+        var oBlocks = document.frmWhatIfBody.BLOCKS;                            
+        var oCatYear = document.frmWhatIfBody.CATYEAR;
+        var sBlockList = "";                                                    
+        var iBlockIndex = 0;                                                         
+		    var iProgramCount = 1;
+        var iMajorCount = 0;
+        var sBlockValue = "";
+        var sCatalogYear = 
+        Trim(oCatYear.options[oCatYear.selectedIndex].value);
+                                                                                
+        while (iBlockIndex < oBlocks.length)                                         
+        {                                                                       
+            sType = oBlocks.options[iBlockIndex].text.substring (0, 7);              
+            iColonLocation = sType.indexOf(":");// firefox                      
+            if (iColonLocation > -1)                                            
+            {                                                                   
+                sType = sType.replace(":", " "); // firefox                     
+            }
+            sBlockValue = Trim(oBlocks.options[iBlockIndex].value);
+
+            if (Trim(sType) == "PROGRAM")
+            {                         
+              sBlockList = sBlockList + 'GOALCODE=PROGRAM&GOALVALUE="' + sBlockValue + '"&' + 'GOALCATYR=' + sCatalogYear + '&'; //+ // overall catyr
+            }
+            else if (Trim(sType) == "MAJOR")
+            {                         
+              sBlockList = sBlockList + 'GOALCODE=MAJOR&GOALVALUE="' + sBlockValue + '"&' + 'GOALCATYR=' + sCatalogYear + '&'; //+ // overall catyr
+
+              <$ILUCXMASK SRC=UCXCFG020 KEY=WHATIF BYTES=2:1 value=D>                            
+                // WHATIF Major-Drives-Degree=D; use Degree/School/College associated with major
+                if (iMajorCount == 0)
+                {
+                  document.frmWhatIfBody.MAJORDRIVESDEGREE_DEGREE.value = 
+                    Get_MJMN_Attributed_Code(Trim(sBlockValue), "DEGREE");
+                  document.frmWhatIfBody.MAJORDRIVESDEGREE_SCHOOL.value = 
+                    Get_MJMN_Attributed_Code(Trim(sBlockValue), "SCHOOL");
+                  iMajorCount++;
+                }
+                sCollege = Get_MJMN_Attributed_Code(Trim(sBlockValue), "COLLEGE");
+                sBlockList = sBlockList + 'GOALCODE=COLLEGE&GOALVALUE="' + sCollege + '"&' + 'GOALCATYR=' + sCatalogYear + '&'; // overall catyr
+              </$ILUCXMASK>
+              <$ILUCXMASK SRC=UCXCFG020 KEY=WHATIF BYTES=2:1 value=C>                            
+                // WHATIF Major-Drives-Degree=C; use College associated with major
+                sCollege = Get_MJMN_Attributed_Code(Trim(sBlockValue), "COLLEGE");
+                if (sCollege != "")
+                  {
+                    sBlockList = sBlockList + 'GOALCODE=COLLEGE&GOALVALUE="' + sCollege + '"&' + 'GOALCATYR=' + sCatalogYear + '&'; // overall catyr
+                  }
+              </$ILUCXMASK>
+            }
+            else if (Trim(sType) == "MINOR")
+            {                         
+              sBlockList = sBlockList + 'GOALCODE=MINOR&GOALVALUE="' + sBlockValue + '"&' + 'GOALCATYR=' + sCatalogYear + '&'; //+ // overall catyr
+            }
+            else if (Trim(sType) == "CONC")
+            {                         
+              sBlockList = sBlockList + 'GOALCODE=CONC&GOALVALUE="' + sBlockValue + '"&' + 'GOALCATYR=' + sCatalogYear + '&'; //+ // overall catyr
+            }
+            else if (Trim(sType) == "LIBL")
+            {                         
+              sBlockList = sBlockList + 'GOALCODE=LIBL&GOALVALUE="' + sBlockValue + '"&' + 'GOALCATYR=' + sCatalogYear + '&'; //+ // overall catyr
+            }
+            else if (Trim(sType) == "SPEC")
+            {                         
+              sBlockList = sBlockList + 'GOALCODE=SPEC&GOALVALUE="' + sBlockValue + '"&' + 'GOALCATYR=' + sCatalogYear + '&'; //+ // overall catyr
+            }
+            else if (Trim(sType) == "COLLEGE")
+            {                         
+              sBlockList = sBlockList + 'GOALCODE=COLLEGE&GOALVALUE="' + sBlockValue + '"&' + 'GOALCATYR=' + sCatalogYear + '&'; //+ // overall catyr
+            }
+            else
+            {
+              // invalid type -- do nothing 
+            }
+
+
+            iBlockIndex++;                                                           
+        } // while                                                              
+
+        //oBlockList.value = "&" + sBlockList;                                  
+        sBlockList = "&" + sBlockList;                                          
+        //alert ("Blocklist = " + sBlockList);                                  
+        return sBlockList;                                                      
+    } // processblocks                                                          
+                                                                                
+    ///////////////////////////////////////////////////                         
+    // Get_MJMN_Attributed_Code
+	// Gets the degree, college, school from the major array
+	// sCodeType can be "DEGREE", "COLLEGE", or "SCHOOL"
+	// This is only invoked if the CFG020 WHATIF MajorDrivesDegree = D
+    ///////////////////////////////////////////////////                         
+    function Get_MJMN_Attributed_Code(sMJMN, sCodeType)                                 
+    {                                                                           
+        // sAUD027Picklist: Picklist for Majors                                    
+        bCodeFound = false;                                                  
+        CurrentPosition = 0;                                                    
+		// Look through sAUD027Picklist for the Major Code specified           
+		MajorPicklistLength = sAUD027Picklist.length;                          
+	    sMJMN = Trim(sMJMN);
+		while (CurrentPosition < MajorPicklistLength && ! bCodeFound)    
+			// while we have not yet found the Major code and we have not   
+			// reached the end of the major code picklist                   
+		{                                                                   
+			if (Trim(sAUD027Picklist[CurrentPosition].major) == sMJMN)   
+			{   
+				if (sCodeType == "COLLEGE")
+				{
+					return sAUD027Picklist[CurrentPosition].college;
+				}
+				else if (sCodeType == "DEGREE")
+				{
+					return sAUD027Picklist[CurrentPosition].singleDegree;
+				}
+				else if (sCodeType == "SCHOOL")
+				{
+					return sAUD027Picklist[CurrentPosition].school;
+				}
+				else // invalid option
+				{
+					return "";
+				}
+				bCodeFound = true;  
+													 
+			}                                                               
+			CurrentPosition++;                                              
+		}                                                                   
+	    return ""; // in case we get to the end
+    }                                                                          
+    // 1.1h Start                                                               
+    ///////////////////////////////////////////////////                         
+    // FilterPicklists                                                          
+    ///////////////////////////////////////////////////                         
+    function FilterPicklists(FilterType, FilterOn)                              
+    {                                                                           
+        myMajor = "" // 1.03                                                    
+        oForm = document.frmWhatIfBody;                                         
+        // Filter MAJOR picklist based on DEGREE                                
+        if (FilterType == "MAJOR")                                              
+        {                                                                       
+           // Clear BLOCKS list since the Degree has changed                    
+           oForm.BLOCKS.length = 0;                                             
+           // Clear picklist                                                    
+           oForm.MAJOR.length = 0;                                              
+           myDegree = oForm.DEGREE;                                             
+           myDegree = Trim(myDegree.options[myDegree.selectedIndex].value); 
+           PicklistLen = 0;                                                     
+           oForm.MAJOR.options[PicklistLen] = new Option("Pick a Major", "",0,0)
+                                                                                
+           PicklistLen++;                                                       
+           // Load Picklist using sAUD027Picklist                                  
+           for (i=0; i < sAUD027Picklist.length; i++)                              
+           {                                                                    
+              if (myDegree == sAUD027Picklist[i].degree1  ||           
+                  myDegree == sAUD027Picklist[i].degree2  ||           
+                  myDegree == sAUD027Picklist[i].degree3  ||           
+                  myDegree == sAUD027Picklist[i].degree4  ||           
+                  myDegree == sAUD027Picklist[i].degree5  ||           
+                  myDegree == sAUD027Picklist[i].degree6  ||           
+                  myDegree == sAUD027Picklist[i].degree7  ||           
+                  myDegree == sAUD027Picklist[i].degree8  ||           
+                  myDegree == sAUD027Picklist[i].degree9  ||              
+                  myDegree == sAUD027Picklist[i].degree10 ||
+                  myDegree == sAUD027Picklist[i].degree11  ||           
+                  myDegree == sAUD027Picklist[i].degree12  ||           
+                  myDegree == sAUD027Picklist[i].degree13  ||           
+                  myDegree == sAUD027Picklist[i].degree14  ||           
+                  myDegree == sAUD027Picklist[i].degree15  ||           
+                  myDegree == sAUD027Picklist[i].degree16  ||           
+                  myDegree == sAUD027Picklist[i].degree17  ||           
+                  myDegree == sAUD027Picklist[i].degree18  ||           
+                  myDegree == sAUD027Picklist[i].degree19  ||              
+                  myDegree == sAUD027Picklist[i].degree20)              
+              {                                                                 
+                 myMajor = StripAmpHTML(sAUD027Picklist[i].majorlit)         //1.03
+                 oForm.MAJOR.options[PicklistLen] =                             
+                   new Option(myMajor, sAUD027Picklist[i].major,0,0)             //1.03
+                 PicklistLen++;                                                 
+              }                                                                 
+           }                                                                    
+        }                                                                       
+    }                                                                           
+    // 1.1h End                                                                 
+                                                                                
+    ///////////////////////////////////////////////////   //1.03 added          
+    // StripHTML                                                                
+    // Strip out "&#39;" and replace with "'"                                   
+    // Strip out "&amp;" and replace with "&"                                   
+    // These are added in by web11 (web04) when these characters exist in UCX   
+    ///////////////////////////////////////////////////                         
+    function StripAmpHTML (sString)                                             
+    {                                                                           
+     do
+       {
+       // Strip out "&#39;" and replace with "'"                                
+       strPos = sString.indexOf("&#39;")                                        
+       if (strPos != -1)                                                        
+          sString = sString.replace("&#39;", "'");                              
+       } // do-while
+     while (strPos != -1)
+                                                                                
+     do
+       {
+       // Strip out "&amp;" and replace with "&"                                
+       strPos = sString.indexOf("&amp;")                                        
+       if (strPos != -1)                                                        
+          sString = sString.replace("&amp;", "&");                              
+       } // do-while
+     while (strPos != -1)
+                                                                                
+     return sString;                                                          
+    }                                                                           
+                                                                                
+    ///////////////////////////////////////////////////
+    // OVERBLOCKLIMIT
+    // Enforce restrictions on the number of each type of block you can have.
+    ///////////////////////////////////////////////////
+    function OverBlockLimit(oBlocks)
+    {
+		var MAX_WHATIF_BLOCKS = 75;
+		//alert("oBlocks.length = " + oBlocks.length);
+		if (oBlocks.length >= MAX_WHATIF_BLOCKS)
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+    } // overblocklimit
+
+    ///////////////////////////////////////////////////                         
+    function AddBlock(sBlockValue, sBlockText, sBlockType)                      
+    {                                                                           
+        var oBlocks = document.frmWhatIfBody.BLOCKS;                            
+        // If we still have our dummy value then get rid of it                  
+        // We needed it to make the select box the correct width in Netscape 4.7
+                                                                                
+        if (oBlocks.length > 0 && oBlocks[0].value == "DUMMY")                  
+        {                                                                       
+            //oBlocks[0].selected = true;                                       
+            //RemoveBlock();                                                    
+            --oBlocks.length;                                                   
+        }                                                                       
+        // Code: 1.1d Fixed the add item more then once bug                     
+        var tmpAlreadyAdded = false;                                            
+        for (i=0; i < oBlocks.length; i++)                                      
+        {                                                                       
+			sThisBlockText = oBlocks.options[i].text;
+			sThisBlockType = Trim(sThisBlockText.substring(0, sThisBlockText.indexOf(":")));
+			//alert('sThisBlockType = [' + sThisBlockType + ']');
+			sThisBlockText = Trim(sThisBlockText.substring(sThisBlockText.indexOf(":") + 2, sThisBlockText.length));
+			//alert('sThisBlockText = [' + sThisBlockText + ']');
+            if (oBlocks.options[i].value == sBlockValue &&     
+			    sThisBlockType           == Trim(sBlockType) &&
+				sThisBlockText           == Trim(sBlockText))
+            {                                                                   
+                tmpAlreadyAdded = true;                                         
+            }                                                                   
+        }                                                                       
+        if (!tmpAlreadyAdded)                                                   
+        {                                                                       
+            oBlocks.length++;                                                   
+            oBlocks.options[oBlocks.length - 1].value = sBlockValue;            
+            oBlocks.options[oBlocks.length - 1].text = sBlockType + ": " +      
+                                                       sBlockText;              
+<$ILUCXMASK SRC=UCXCFG020 KEY=PLANNER BYTES=82:1 value=Y>                          
+<$ILCGIMASK ACTION="SEPUSAGE">                                                  
+            ToggleWhatIfCheckbox();                                             
+</$ILCGIMASK>                                                                   
+</$ILUCXMASK>                                                                   
+        }  // End 1.1d Fix                                                      
+    }                                                                           
+    ///////////////////////////////////////////////////                         
+    function SetBlock(thisSelect)                                               
+    {                                                                           
+        var oBlocks = document.frmWhatIfBody.BLOCKS;
+        // Code: 1.1c Added if statment to correct add blank or label bug       
+        if (thisSelect.options[thisSelect.selectedIndex].value != "" &&         
+            thisSelect.options[thisSelect.selectedIndex].value != "            ")   
+        {                                                                       
+            //alert (thisSelect.name + " was clicked");                         
+            sBlockValue = thisSelect.options[thisSelect.selectedIndex].value;   
+            sBlockText = thisSelect.options[thisSelect.selectedIndex].text;     
+            sBlockType = thisSelect.name;                                                   
+           // Code: 1.1e Fix Name Padding Error                                
+            for (i = sBlockType.length; i < 7; i++)                             
+            {                                                                   
+               sBlockType = sBlockType + " ";                                  
+            } // End 1.1e Fix                                                   
+            if (! OverBlockLimit (oBlocks))                                  
+            {                                                                   
+                AddBlock(sBlockValue, sBlockText, sBlockType);                  
+            }                                                                   
+        } // End 1.1c Fix                                                       
+        // Code: 1.1c Added to correct select add bug                           
+        if (thisSelect.ChangeStatus)                                            
+        {                                                                       
+            thisSelect.ChangeStatus = false;                                    
+        } // End 1.1c Fix                                                       
+        thisSelect.selectedIndex = 0;                                           
+        thisSelect.focus();                                                     
+    }                                                                           
+    ///////////////////////////////////////////////////                         
+    function RemoveBlock()                                                      
+    {                                                                           
+        var oBlocks = document.frmWhatIfBody.BLOCKS;                            
+        if (oBlocks.length == 0)                                                
+        {                                                                       
+            alert("The block list is empty so nothing can be removed.");        
+        }                                                                       
+        else if (oBlocks.selectedIndex < 0)                                     
+        {                                                                       
+            alert ("You must first select a block before clicking Remove");     
+        }                                                                       
+        else // Something is selected                                           
+        {                                                                       
+            var tmpSelectItemCount = 0;                                         
+            for (var i = 0; i < oBlocks.options.length; i++)                    
+            {                                                                   
+                if (!oBlocks.options[i].selected)                               
+                {                                                               
+                    oBlocks.options[tmpSelectItemCount].value =                 
+                                                oBlocks.options[i].value        
+                    oBlocks.options[tmpSelectItemCount].text =                  
+                                                oBlocks.options[i].text         
+                    ++tmpSelectItemCount;                                       
+                }                                                               
+            }                                                                   
+            oBlocks.length = tmpSelectItemCount;                                
+            oBlocks.selectedIndex = oBlocks.length -1;                          
+<$ILUCXMASK SRC=UCXCFG020 KEY=PLANNER BYTES=82:1 value=Y>                          
+<$ILCGIMASK ACTION="SEPUSAGE">                                                  
+            ToggleWhatIfCheckbox();                                             
+</$ILCGIMASK>                                                                   
+</$ILUCXMASK>                                                                   
+                                                                                
+        }                                                                       
+    } // removeblock                                                            
+</script>                                                                       
+<noscript>JavaScript is Required!</noscript>                                    
+<script language="JavaScript">                                                  
+// Note: 1.1c Added to fix auto add bug                                         
+// Code: gets keypress value for supported browsers                             
+function fnGetKeyValue(e)                                                       
+{                                                                               
+    e = (e) ? e : ((event) ? event : null);                                     
+    return (document.layers && Event) ? e.which : e.keyCode;                    
+}                                                                               
+</script>                                                                       
+<noscript>JavaScript is Required!</noscript>                                    
+<body class="WhatIfBody" onLoad="SetDefaultValues()">                           
+<$ILINCLUDE SCRIPT=SD2GENFRM>                                                   
+ name="frmWhatIfBody">                                                          
+<!-- Include other special name-value pairs needed by the site -->              
+<$ILINCLUDE SCRIPT=SD2SPECIALNVPS>                                              
+                                                                                
+<$ILUCXMASK SRC=UCXCFG020 KEY=WHATIF BYTES=2:1 value=D>                            
+<input type="hidden" name="MAJORDRIVESDEGREE_DEGREE" value="">
+<input type="hidden" name="MAJORDRIVESDEGREE_SCHOOL" value="">
+<input type="hidden" name="MAJORDRIVESDEGREE_COLLEGE" value="">
+</$ILUCXMASK>
+
+<!-- 1.05 Begin -->                                                             
+<$ILUCXMASK SRC=UCXCFG020 KEY=PLANNER BYTES=82:1 value=Y>                          
+<$ILCGIMASK ACTION="SEPUSAGE">                                                  
+<script>                                                                        
+function ToggleWhatIf()                                                         
+{                                                                               
+    myWhatIfSetting = document.frmWhatIfBody.WHATIFSETTING;                     
+    if (myWhatIfSetting.value == "OFF")                                         
+    {                                                                           
+        myWhatIfSetting.value = "ON";                                           
+        document.frmWhatIfBody.ToggleWhatIfButton.value="Hide What If Options"; 
+        parent.document.all("LeftSide").rows="15%,85%";                         
+    }                                                                           
+    else                                                                        
+    {                                                                           
+        myWhatIfSetting.value = "OFF";                                          
+        document.frmWhatIfBody.ToggleWhatIfButton.value="Show What If Options"; 
+        parent.document.all("LeftSide").rows="*,60";                            
+    }                                                                           
+}                                                                               
+                                                                                
+function ToggleWhatIfCheckbox()                                                 
+{                                                                               
+    if (document.frmWhatIfBody.BLOCKS.length > 0)                               
+    {                                                                           
+        document.frmWhatIfBody.UseWhatIf.checked = true;                        
+    }                                                                           
+    else                                                                        
+    {                                                                           
+        document.frmWhatIfBody.UseWhatIf.checked = false;                       
+    }                                                                           
+}                                                                               
+</script>                                                                       
+<table cellspacing="0" cellpadding="0" border="0" width="100%"                  
+>                                                                               
+    <tr>                                                                        
+        <td align="left">                                                       
+            <input type="hidden" name="WHATIFSETTING" value="OFF">              
+            <input type="button" name="ToggleWhatIfButton"                      
+             value="Show What If Options" class="ExceptionButton"               
+             onclick="ToggleWhatIf();">                                         
+        </td>                                                                   
+        <td align="right">                                                      
+            <input type="checkbox" name="UseWhatIf" id="UseWhatIf" 
+	           class="myCheckbox">            
+            <label for="UseWhatIf" class="WhatIfInput">                         
+            Use What If Scenario                                                
+            </label>                                                            
+        </td>                                                                   
+    </tr>                                                                       
+</table>                                                                        
+<br />                                                                          
+</$ILCGIMASK>                                                                   
+</$ILUCXMASK>                                                                   
+<!-- 1.05 End -->                                                               
+<!-- ===================================================================== -->  
+<!-- ========================= TOP SECTION =============================== -->  
+<!-- ===================================================================== -->  
+<table border="0" cellspacing="0" cellpadding="0" width="100%"                  
+class="WhatIfTitle">                                                            
+    <tr>                                                                        
+        <td class="WhatIfHeadBorderDark">                                       
+            <img src="Images_DG2/spacer.gif" alt="" height="1"><br />           
+        </td>                                                                   
+    </tr>                                                                       
+    <tr>                                                                        
+        <td class="WhatIfHeadBorderLight">                                      
+            <img src="Images_DG2/spacer.gif" alt="" height="1"><br />           
+        </td>                                                                   
+    </tr>                                                                       
+    <tr>                                                                        
+        <td align="left" valign="top">                                          
+            <!-- TitleSection Table -->                                         
+            <table border="0" cellspacing="0" cellpadding="0" width="100%">     
+                <tr>                                                            
+                    <td align="left" valign="middle">                           
+                        <span class="WhatIfTitle">                              
+                            What-If                                             
+                        </span>                                                 
+                    </td>                                                       
+                </tr>                                                           
+            </table>                                                            
+        </td>                                                                   
+    </tr>                                                                       
+    <tr>                                                                        
+        <td class="WhatIfHeadBorderLight">                                      
+            <img src="Images_DG2/spacer.gif" alt="" height="1"><br />           
+        </td>                                                                   
+    </tr>                                                                       
+    <tr>                                                                        
+        <td class="WhatIfHeadBorderDark">                                       
+            <img src="Images_DG2/spacer.gif" alt="" height="1"><br />           
+        </td>                                                                   
+    </tr> 
+    			<!-- CMU Localization === Added additional text -->
+    			<tr class="DisclaimerText" >
+      				<td colspan="2">
+					<p>
+					The What If Audit displays the results when a proposed program change is considered 
+					using your current class history. 
+					<br />
+					Select the What If criteria for the scenario to be 
+					examined, then click the Process What If button to view the results of the audit. 
+					<br />
+	  				Not all Major, Minor, and/or Concentration combinations may be valid options; 
+                                   please see your academic advisor.
+					</p>
+      				</td>
+    			</tr>
+    			<!-- CMU Localization === End of Added additional text --> 	
+</table>                                                                        
+<table border="0" cellspacing="0" cellpadding="0" width="100%"                  
+class="WhatIfTitleData2">                                                       
+    <tr>                                                                        
+        <td align="left" valign="top">                                          
+            <table border="0" cellspacing="0" cellpadding="4" width="100%">     
+                <!-- ======== SCHOOL ========== -->                             
+<$ILUCXMASK Not SRC=UCXCFG020 KEY=WHATIF BYTES=2:1 value=D>                        
+<$ILUCXMASK SRC=UCXCFG020 KEY=WHATIF BYTES=32:1 value=Y>                           
+                <tr>                                                            
+                    <td class="WhatIfLabel">                                    
+                        <label for="SCHOOL">                                    
+                        <$ILUCX SRC=UCXSCR001 KEY=SCHOOL BYTES=1:20>               
+                        </label>                                                
+                    </td>                                                       
+                    <td class="WhatIfInput">                                    
+                        <select name="SCHOOL" id="SCHOOL"                       
+                        class="WhatIfSelect">                                   
+                            <option value="" >Pick a                            
+                                <$ILUCX SRC=UCXSCR001 KEY=SCHOOL BYTES=1:20>       
+                            </option>                                           
+<!$ILPICK SRC=UCXSTU350                                                            
+         sortbyvalue = 4:30                                                     
+         Restrict 37:1<>N                                                       
+         text={<option value="} key=1:12 text= {">} value = 4:30></option>      
+                        </select>                                               
+                    </td>                                                       
+                </tr>                                                           
+</$ILUCXMASK>                                                                   
+</$ILUCXMASK>                                                                   
+                <!-- ======== DEGREE ========== --><!--1.1h: Added onChange-->  
+<$ILUCXMASK Not SRC=UCXCFG020 KEY=WHATIF BYTES=2:1 value=D>                        
+<$ILUCXMASK NOT SRC=UCXCFG020 KEY=WHATIF BYTES=33:1 value=N>                       
+                <tr>                                                            
+                    <td class="WhatIfLabel">                                    
+                        <label for="DEGREE">                                    
+                        <$ILUCX SRC=UCXSCR001 KEY=DEGREE BYTES=1:20>               
+                        </label>                                                
+                    </td>                                                       
+                    <td class="WhatIfInput">                                    
+                        <select name="DEGREE" id="DEGREE"                       
+                       class="WhatIfSelect"                                     
+<$ILUCXMASK SRC=UCXCFG020 KEY=WHATIF BYTES=1:1 value=M>                            
+<$ILUCXMASK Not SRC=UCXCFG020 KEY=WHATIF BYTES=4:1 value=N>                            
+                       onChange="FilterPicklists('MAJOR')"                      
+</$ILUCXMASK>                                                                   
+</$ILUCXMASK>                                                                   
+                       >                                                        
+                            <option value="" >Pick a                            
+                                <$ILUCX SRC=UCXSCR001 KEY=DEGREE BYTES=1:20>       
+                            </option>                                           
+<!$ILPICK SRC=UCXSTU307                                                            
+         sortbyvalue = 1:50                                                     
+         Restrict 139:1<>N                                                       
+         text={<option value="} key=1:12 text= {">} value = 1:50></option>      
+                        </select>                                               
+                    </td>                                                       
+                </tr>                                                           
+</$ILUCXMASK>                                                                   
+</$ILUCXMASK>                                                                   
+                <!-- ======== CATALOG YEAR ========== -->                       
+                <tr>                                                            
+                    <td class="WhatIfLabel">                                    
+                        <label for="CATYEAR">                                   
+                         <$ILUCX SRC=UCXSCR001 KEY=CATYR BYTES=1:20>               
+                        </label>                                                
+                    </td>                                                       
+                    <td class="WhatIfInput">                                    
+                        <select name="CATYEAR" id="CATYEAR"                     
+                        class="WhatIfSelect">                                   
+                            <$ILUCXMASK SRC=UCXSCR001 KEY=CATYR BYTES=1:1 VALUE=A DEP=CATYRA>                                            
+                              <option value="">Pick an <$ILUCX SRC=UCXSCR001 KEY=CATYR BYTES=1:20> </option>                                           
+                            </$ILUCXMASK>                                            
+                            <$ILMASK Not DEP=CATYRA>                                            
+                              <option value="">Pick a <$ILUCX SRC=UCXSCR001 KEY=CATYR BYTES=1:20> </option>                                           
+                            </$ILMASK>                                            
+<!$ILPICK SRC=UCXSTU035                                                            
+         revsortbyvalue = 50:8                                                  
+         Restrict 32:1<>N                                                       
+         text={<option value="} key=1:12 text= {">} value = 1:25></option>      
+                        </select>                                               
+                                                                                
+                    </td>                                                       
+                </tr>                                                           
+            </table>                                                            
+        </td>                                                                   
+    </tr>                                                                       
+</table>                                                                        
+<!-- START: Could this be a malformed table? -->                                
+</td>                                                                           
+</tr>                                                                           
+</table>                                                                        
+<!-- END: Could this be a malformed table? -->                                  
+<!-- ===================================================================== -->  
+<!-- ========================= BLOCK SECTION ============================= -->  
+<!-- ===================================================================== -->  
+<table border="0" cellspacing="0" cellpadding="0" width="100%"                  
+class="WhatIfTitle">                                                            
+    <tr>                                                                        
+        <td class="WhatIfHeadBorderDark">                                       
+            <img src="Images_DG2/spacer.gif" alt="" height="1"><br />           
+        </td>                                                                   
+    </tr>                                                                       
+    <tr>                                                                        
+        <td class="WhatIfHeadBorderLight">                                      
+            <img src="Images_DG2/spacer.gif" alt="" height="1"><br />           
+        </td>                                                                   
+    </tr>                                                                       
+    <tr>                                                                        
+        <td align="left" valign="top">                                          
+            <table border="0" cellspacing="0" cellpadding="4" width="100%">     
+                <tr>                                                            
+                    <td align="left" valign="middle">                           
+<$ILMASK DEP=SHOWAREAS>                                                         
+                        <span class="WhatIfBlockSection">                       
+                            Choose Your Different Areas of Study                
+                        </span>                                                 
+</$ILMASK> <<<< showareas                                                       
+                    </td>                                                       
+                </tr>                                                           
+            </table>                                                            
+        </td>                                                                   
+    </tr>                                                                       
+    <tr>                                                                        
+        <td class="WhatIfHeadBorderLight">                                      
+            <img src="Images_DG2/spacer.gif" alt="" height="1"><br />           
+        </td>                                                                   
+    </tr>                                                                       
+    <tr>                                                                        
+        <td class="WhatIfHeadBorderDark">                                       
+            <img src="Images_DG2/spacer.gif" alt="" height="1"><br />           
+        </td>                                                                   
+    </tr>                                                                       
+</table>                                                                        
+ <!-- section header -->                                                        
+<table border="0" cellspacing="0" cellpadding="0" width="100%"                  
+class="WhatIfTitleData2">                                                       
+    <tr>                                                                        
+        <!-- =============== LEFT SIDE COLUMN =========== -->                   
+        <td align="left" valign="top">                                          
+            <table border="0" cellspacing="0" cellpadding="4" width="100%">     
+                <!-- Add an empty row to line up major picklist with top of sele
+                                                                                
+ct box -->                                                                      
+<$ILMASK DEP=SHOWAREAS>                                                         
+                <tr>                                                            
+                    <td colspan="3">                                            
+                    <span class="WhatIfRemove">                                 
+                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;                          
+                        Select an item to add it to your Chosen Area of Study   
+                    </span>                                                     
+                    </td>                                                       
+                </tr>                                                           
+</$ILMASK> <<<< showareas                                                       
+                <!-- **** PROGRAM **** -->                                        
+                <!-- Is program used in student system -->                 
+<$ILUCXMASK NOT SRC=UCXCFG020 KEY=WHATIF BYTES=3:1 value=N DEP=SHOWAREAS>              
+                <tr>                                                            
+                    <td class="WhatIfLabel" nowrap>                             
+                        <label for="PROGRAM">                                     
+                        <$ILUCX SRC=UCXSCR001 KEY=PROGRAM BYTES=1:20>                
+                        </label>                                                
+                    </td>                                                       
+                    <td class="WhatIfInput">                                    
+                        <select name="PROGRAM" id="PROGRAM" class="WhatIfSelect"    
+        onchange="if (!(document.layers && Event)) {SetBlock(this)}" 
+        onclick="if (this.ChangeStatus) {SetBlock(this)};"                      
+        onkeypress="if (fnGetKeyValue(event) == 13) {SetBlock(this)};"          
+        onblur="this.ChangeStatus = false;">                                    
+                            <option value="" >Pick a                            
+                                <$ILUCX SRC=UCXSCR001 KEY=PROGRAM BYTES=1:20>        
+                            </option>                                           
+<$ILPICK SRC=UCXSTU316                                                             
+         sortbyvalue = 1:50                                                              
+         Restrict 51:1<>N                                                       
+         text={<option value="} key=1:12 text= {">} value = 1:50></option>               
+                        </select>                                               
+                    </td>                                                       
+                    <td align="left" width="100%">                              
+<a href="#" onClick="SetBlock(document.frmWhatIfBody.PROGRAM);"                   
+style="cursor: default" title="Add a Program To List"                             
+><script type="text/javascript">                                                
+if (document.layers && Event)                                                   
+{                                                                               
+    //Arrow image for NS4x users                                                
+    document.write('<img src="Images_DG2/AddButton.gif "' +                     
+                    'id="AddButton" ' +                                         
+                    'name="AddButton" ' +                                       
+                    'width="22" ' +                                             
+                    'height="19" ' +                                            
+                    'alt="Add a Program To List" ' +                              
+                    'border="0" />');                                           
+}                                                                               
+else                                                                            
+{                                                                               
+    // Clear 1pix image for ADA/508 users to use via tab key                    
+    document.write('<img src="Images_DG2/AddButtonClear.gif "' +                
+                    'id="AddButton" ' +                                         
+                    'name="AddButton" ' +                                       
+                    'width="1" ' +                                              
+                    'height="1" ' +                                             
+                    'alt="Add a Program To List" ' +                              
+                    'border="0" />');                                           
+}                                                                               
+</script></a>                                                                   
+                    </td>                                                       
+                </tr>                                                           
+</$ILUCXMASK>                                                                   
+                <!-- **** MAJOR **** -->                                        
+                <!-- Is major-minor1 used in student system -->                 
+<$ILUCXMASK NOT SRC=UCXCFG020 KEY=WHATIF BYTES=4:1 value=N DEP=SHOWAREAS>              
+                <tr>                                                            
+                    <td class="WhatIfLabel" nowrap>                             
+                        <label for="MAJOR">                                     
+                        <$ILUCX SRC=UCXSCR001 KEY=MAJOR BYTES=1:20>                
+                        </label>                                                
+                    </td>                                                       
+                    <td class="WhatIfInput">                                    
+                        <select name="MAJOR" id="MAJOR" class="WhatIfSelect"    
+        onchange="if (!(document.layers && Event)) {SetBlock(this)}" 
+        onclick="if (this.ChangeStatus) {SetBlock(this)};"                      
+        onkeypress="if (fnGetKeyValue(event) == 13) {SetBlock(this)};"          
+        onblur="this.ChangeStatus = false;">                                    
+                            <option value="" >Pick a                            
+                                <$ILUCX SRC=UCXSCR001 KEY=MAJOR BYTES=1:20>        
+                            </option>                                           
+<$ILPICK SRC=UCXAUD027                                                             
+sortbyvalue = 1:50                                                              
+text={<option value="} key=1:12 text= {">} value = 1:50></option>               
+                        </select>                                               
+                    </td>                                                       
+                    <td align="left" width="100%">                              
+<a href="#" onClick="SetBlock(document.frmWhatIfBody.MAJOR);"                   
+style="cursor: default" title="Add a Major To List"                             
+><script type="text/javascript">                                                
+if (document.layers && Event)                                                   
+{                                                                               
+    //Arrow image for NS4x users                                                
+    document.write('<img src="Images_DG2/AddButton.gif "' +                     
+                    'id="AddButton" ' +                                         
+                    'name="AddButton" ' +                                       
+                    'width="22" ' +                                             
+                    'height="19" ' +                                            
+                    'alt="Add a Major To List" ' +                              
+                    'border="0" />');                                           
+}                                                                               
+else                                                                            
+{                                                                               
+    // Clear 1pix image for ADA/508 users to use via tab key                    
+    document.write('<img src="Images_DG2/AddButtonClear.gif "' +                
+                    'id="AddButton" ' +                                         
+                    'name="AddButton" ' +                                       
+                    'width="1" ' +                                              
+                    'height="1" ' +                                             
+                    'alt="Add a Major To List" ' +                              
+                    'border="0" />');                                           
+}                                                                               
+</script></a>                                                                   
+                    </td>                                                       
+                </tr>                                                           
+</$ILUCXMASK>                                                                   
+                <!-- **** MINOR **** -->                                        
+                <!-- Is major-minor2 used in student system -->                 
+<$ILUCXMASK SRC=UCXCFG020 KEY=WHATIF BYTES=11:1 value=Y DEP=SHOWAREAS>             
+                <tr>                                                            
+                    <td class="WhatIfLabel" nowrap>                             
+                        <label for="MINOR">                                     
+                        <$ILUCX SRC=UCXSCR001 KEY=MINOR BYTES=1:20>                
+                        </label>                                                
+                    </td>                                                       
+                    <td class="WhatIfInput">                                    
+                        <select name="MINOR" id="MINOR" class="WhatIfSelect"    
+        onchange="if (!(document.layers && Event)) {SetBlock(this)}" 
+        onclick="if (this.ChangeStatus) {SetBlock(this)};"                      
+        onkeypress="if (fnGetKeyValue(event) == 13) {SetBlock(this)};"          
+        onblur="this.ChangeStatus = false;">                                    
+                            <option value="">Pick a                             
+                                <$ILUCX SRC=UCXSCR001 KEY=MINOR BYTES=1:20>        
+                            </option>                                           
+<$ILPICK SRC=UCXAUD029                                                             
+sortbyvalue = 1:50                                                              
+text={<option value="} key=1:12 text= {">} value = 1:50></option>               
+                        </select>                                               
+                    </td>                                                       
+                    <td align="left" width="100%">                              
+<a href="#" onClick="SetBlock(document.frmWhatIfBody.MINOR);"                   
+style="cursor: default" title="Add a Minor To List"                             
+><script type="text/javascript">                                                
+if (document.layers && Event)                                                   
+{                                                                               
+    //Arrow image for NS4x users                                                
+    document.write('<img src="Images_DG2/AddButton.gif "' +                     
+                    'id="AddButton" ' +                                         
+                    'name="AddButton" ' +                                       
+                    'width="22" ' +                                             
+                    'height="19" ' +                                            
+                    'alt="Add a Minor To List" ' +                              
+                    'border="0" />');                                           
+}                                                                               
+else                                                                            
+{                                                                               
+    // Clear 1pix image for ADA/508 users to use via tab key                    
+    document.write('<img src="Images_DG2/AddButtonClear.gif "' +                
+                    'id="AddButton" ' +                                         
+                    'name="AddButton" ' +                                       
+                    'width="1" ' +                                              
+                    'height="1" ' +                                             
+                    'alt="Add a Minor To List" ' +                              
+                    'border="0" />');                                           
+}                                                                               
+</script></a>                                                                   
+                    </td>                                                       
+                </tr>                                                           
+</$ILUCXMASK>                                                                   
+
+                <!-- **** COLLEGE **** -->                                        
+                <!-- Is college used in student system -->                 
+<$ILUCXMASK SRC=UCXCFG020 KEY=WHATIF BYTES=5:1 value=Y DEP=SHOWAREAS>             
+                <tr>                                                            
+                    <td class="WhatIfLabel" nowrap>                             
+                        <label for="COLLEGE">                                     
+                        <$ILUCX SRC=UCXSCR001 KEY=COLLEGE BYTES=1:20>                
+                        </label>                                                
+                    </td>                                                       
+                    <td class="WhatIfInput">                                    
+                        <select name="COLLEGE" id="COLLEGE" class="WhatIfSelect"    
+        onchange="if (!(document.layers && Event)) {SetBlock(this)}" 
+        onclick="if (this.ChangeStatus) {SetBlock(this)};"                      
+        onkeypress="if (fnGetKeyValue(event) == 13) {SetBlock(this)};"          
+        onblur="this.ChangeStatus = false;">                                    
+                            <option value="">Pick a                             
+                                <$ILUCX SRC=UCXSCR001 KEY=COLLEGE BYTES=1:20>        
+                            </option>                                           
+<$ILPICK SRC=UCXSTU560                                                             
+         sortbyvalue = 1:30                                                              
+         Restrict 31:1<>N                                                       
+         text={<option value="} key=1:12 text= {">} value = 1:30></option>               
+                        </select>                                               
+                    </td>                                                       
+                    <td align="left" width="100%">                              
+<a href="#" onClick="SetBlock(document.frmWhatIfBody.COLLEGE);"                   
+style="cursor: default" title="Add a College To List"                             
+><script type="text/javascript">                                                
+if (document.layers && Event)                                                   
+{                                                                               
+    //Arrow image for NS4x users                                                
+    document.write('<img src="Images_DG2/AddButton.gif "' +                     
+                    'id="AddButton" ' +                                         
+                    'name="AddButton" ' +                                       
+                    'width="22" ' +                                             
+                    'height="19" ' +                                            
+                    'alt="Add a College To List" ' +                              
+                    'border="0" />');                                           
+}                                                                               
+else                                                                            
+{                                                                               
+    // Clear 1pix image for ADA/508 users to use via tab key                    
+    document.write('<img src="Images_DG2/AddButtonClear.gif "' +                
+                    'id="AddButton" ' +                                         
+                    'name="AddButton" ' +                                       
+                    'width="1" ' +                                              
+                    'height="1" ' +                                             
+                    'alt="Add a College To List" ' +                              
+                    'border="0" />');                                           
+}                                                                               
+</script></a>                                                                   
+                    </td>                                                       
+                </tr>                                                           
+</$ILUCXMASK>                                                                   
+
+                <!-- **** CONCENTRATION **** -->                                
+<$ILUCXMASK SRC=UCXCFG020 KEY=WHATIF BYTES=6:1 value=Y DEP=SHOWAREAS>              
+                <tr>                                                            
+                    <td class="WhatIfLabel" nowrap>                             
+                        <label for="CONC">                                      
+                        <$ILUCX SRC=UCXSCR001 KEY=CONC BYTES=1:20>                 
+                        </label>                                                
+                    </td>                                                       
+                    <td class="WhatIfInput">                                    
+                        <select name="CONC" id="CONC" class="WhatIfSelect"      
+        onchange="if (!(document.layers && Event)) {SetBlock(this)}" 
+        onclick="if (this.ChangeStatus) {SetBlock(this)};"                      
+        onkeypress="if (fnGetKeyValue(event) == 13) {SetBlock(this)};"          
+        onblur="this.ChangeStatus = false;">                                    
+                            <option value="">Pick a                             
+                                <$ILUCX SRC=UCXSCR001 KEY=CONC BYTES=1:20>         
+                            </option>                                           
+<$ILPICK SRC=UCXSTU563                                                             
+sortbyvalue = 1:50                                                              
+Restrict 51:1<>N                                                       
+text={<option value="}                                                          
+key=1:12                                                                        
+text= {">}                                                                      
+value = 1:50></option>                                                          
+                        </select>                                               
+                    </td>                                                       
+                    <td align="left" width="100%">                              
+<a href="#" onClick="SetBlock(document.frmWhatIfBody.CONC);"                    
+style="cursor: default" title="Add a Concentration To List"                     
+><script type="text/javascript">                                                
+if (document.layers && Event)                                                   
+{                                                                               
+    //Arrow image for NS4x users                                                
+    document.write('<img src="Images_DG2/AddButton.gif "' +                     
+                    'id="AddButton" ' +                                         
+                    'name="AddButton" ' +                                       
+                    'width="22" ' +                                             
+                    'height="19" ' +                                            
+                    'alt="Add a Concentration To List" ' +                      
+                    'border="0" />');                                           
+}                                                                               
+else                                                                            
+{                                                                               
+    // Clear 1pix image for ADA/508 users to use via tab key                    
+    document.write('<img src="Images_DG2/AddButtonClear.gif "' +                
+                    'id="AddButton" ' +                                         
+                    'name="AddButton" ' +                                       
+                    'width="1" ' +                                              
+                    'height="1" ' +                                             
+                    'alt="Add a Concentration To List" ' +                      
+                    'border="0" />');                                           
+}                                                                               
+</script></a>                                                                   
+                    </td>                                                       
+                </tr>                                                           
+</$ILUCXMASK>                                                                   
+                <!-- **** SPECIALIZATION **** -->                               
+<$ILUCXMASK SRC=UCXCFG020 KEY=WHATIF BYTES=9:1 value=Y DEP=SHOWAREAS>              
+                <tr>                                                            
+                    <td class="WhatIfLabel" nowrap>                             
+                        <label for="SPEC">                                      
+                        <$ILUCX SRC=UCXSCR001 KEY=SPEC BYTES=1:20>                 
+                        </label>                                                
+                    </td>                                                       
+                    <td class="WhatIfInput">                                    
+                        <select name="SPEC" id="SPEC" class="WhatIfSelect"      
+        onchange="if (!(document.layers && Event)) {SetBlock(this)}" 
+        onclick="if (this.ChangeStatus) {SetBlock(this)};"                      
+        onkeypress="if (fnGetKeyValue(event) == 13) {SetBlock(this)};"          
+        onblur="this.ChangeStatus = false;">                                    
+                            <option value="">Pick a                             
+                                <$ILUCX SRC=UCXSCR001 KEY=SPEC BYTES=1:20>         
+                            </option>                                           
+<$ILPICK SRC=UCXSTU323                                                             
+sortbyvalue = 1:30                                                              
+Restrict 31:1<>N                                                       
+text={<option value="}                                                          
+key=1:12                                                                        
+text= {">}                                                                      
+value = 1:30></option>                                                          
+                        </select>                                               
+                    </td>                                                       
+                    <td align="left" width="100%">                              
+<a href="#" onClick="SetBlock(document.frmWhatIfBody.SPEC);"                    
+style="cursor: default" title="Add a Specialization To List"                    
+><script type="text/javascript">                                                
+if (document.layers && Event)                                                   
+{                                                                               
+    //Arrow image for NS4x users                                                
+    document.write('<img src="Images_DG2/AddButton.gif "' +                     
+                    'id="AddButton" ' +                                         
+                    'name="AddButton" ' +                                       
+                    'width="22" ' +                                             
+                    'height="19" ' +                                            
+                    'alt="Add a Specialization To List" ' +                     
+                    'border="0" />');                                           
+}                                                                               
+else                                                                            
+{                                                                               
+    // Clear 1pix image for ADA/508 users to use via tab key                    
+    document.write('<img src="Images_DG2/AddButtonClear.gif "' +                
+                    'id="AddButton" ' +                                         
+                    'name="AddButton" ' +                                       
+                    'width="1" ' +                                              
+                    'height="1" ' +                                             
+                    'alt="Add a Specialization To List" ' +                     
+                    'border="0" />');                                           
+}                                                                               
+</script></a>                                                                   
+                    </td>                                                       
+                </tr>                                                           
+</$ILUCXMASK>                                                                   
+                <!-- **** LIBERAL LEARNING **** -->                             
+<$ILUCXMASK SRC=UCXCFG020 KEY=WHATIF BYTES=10:1 value=Y DEP=SHOWAREAS>             
+                <tr>                                                            
+                    <td class="WhatIfLabel" nowrap>                             
+                    <nobr>                                                      
+                        <label for="LIBL">                                    
+                        <$ILUCX SRC=UCXSCR001 KEY=LIBL BYTES=1:20>                 
+                        </label>                                                
+                    </nobr>                                                     
+                    </td>                                                       
+                    <td class="WhatIfInput">                                    
+                        <select name="LIBL" id="LIBL" class="WhatIfSelect"  
+        onchange="if (!(document.layers && Event)) {SetBlock(this)}" 
+        onclick="if (this.ChangeStatus) {SetBlock(this)};"                      
+        onkeypress="if (fnGetKeyValue(event) == 13) {SetBlock(this)};"          
+        onblur="this.ChangeStatus = false;">                                    
+                            <option value="" >Pick a                            
+                                <$ILUCX SRC=UCXSCR001 KEY=LIBL   BYTES=1:20>       
+                            </option>                                           
+<$ILPICK SRC=UCXSTU324                                                             
+sortbyvalue = 1:30                                                              
+Restrict 31:1<>N                                                       
+text={<option value="}                                                          
+key=1:12                                                                        
+text= {">}                                                                      
+value = 1:30></option>                                                          
+                        </select>                                               
+                    </td>                                                       
+                    <td align="left" width="100%">                              
+<a href="#" onClick="SetBlock(document.frmWhatIfBody.LIBL);"                  
+style="cursor: default" title="Add a Liberal Learning To List"                  
+><script type="text/javascript">                                                
+if (document.layers && Event)                                                   
+{                                                                               
+    //Arrow image for NS4x users                                                
+    document.write('<img src="Images_DG2/AddButton.gif "' +                     
+                    'id="AddButton" ' +                                         
+                    'name="AddButton" ' +                                       
+                    'width="22" ' +                                             
+                    'height="19" ' +                                            
+                    'alt="Add a Liberal Learning To List" ' +                   
+                    'border="0" />');                                           
+}                                                                               
+else                                                                            
+{                                                                               
+    // Clear 1pix image for ADA/508 users to use via tab key                    
+    document.write('<img src="Images_DG2/AddButtonClear.gif "' +                
+                    'id="AddButton" ' +                                         
+                    'name="AddButton" ' +                                       
+                    'width="1" ' +                                              
+                    'height="1" ' +                                             
+                    'alt="Add a Liberal Learning To List" ' +                   
+                    'border="0" />');                                           
+}                                                                               
+</script></a>                                                                   
+                    </td>                                                       
+                </tr>                                                           
+</$ILUCXMASK>                                                                   
+            </table>                                                            
+        </td>                                                                   
+<$ILMASK DEP=SHOWAREAS>                                                         
+<$ILUCXMASK SRC=UCXCFG020 KEY=PLANNER BYTES=82:1 value=Y>                          
+<$ILCGIMASK ACTION="SEPUSAGE">                                                  
+<!-- 1.05 Begin -->                                                             
+        </tr>                                                                   
+        <tr>                                                                    
+<!-- 1.05 End -->                                                               
+</$ILCGIMASK>                                                                   
+</$ILUCXMASK>                                                                   
+        <!-- =============== RIGHT SIDE COLUMN =========== -->                  
+        <td align="left" valign="top">                                          
+            <table border="0" cellspacing="0" cellpadding="2" width="100%">     
+                <tr>                                                            
+                    <td align=left>                                             
+                        <label for="BLOCKS">                                    
+                        <span class="WhatIfRemove">Chosen Areas of study</span> 
+                        </label>                                                
+                    </td>                                                       
+                </tr>                                                           
+                <tr>                                                            
+                    <td align="left">                                           
+                        <select size="7" name="BLOCKS" id="BLOCKS"              
+                        class="WhatIfBlocks" multiple                           
+                        >                                                       
+                            <option value="DUMMY">                              
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;      
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;      
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;      
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;      
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;      
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;      
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;      
+                                &nbsp;&nbsp;&nbsp;&nbsp;                        
+                                </option>                                       
+                        </select>                                               
+                    </td>                                                       
+                </tr>                                                           
+                <tr>                                                            
+                    <td align="left" valign="middle">                           
+                        <input type="button" name="REMOVE" value="Remove"       
+                        class="WhatIfRemove" onClick="RemoveBlock()">           
+                    </td>                                                       
+                </tr>                                                           
+            </table><!-- RIGHT column table -->                                 
+        </td>                                                                   
+</$ILMASK> <<<<<<<<<<<<<< DEP=SHOWAREAS                                         
+    </tr>                                                                       
+                                                                                
+<$ILCGIMASK NOT ACTION="SEPUSAGE">                                              
+<$ILUCXMASK SRC=UCXCFG020 KEY=WHATIF BYTES=47:1 value=Y>                           
+                                                                                
+<!-- ===================================================================== -->  
+<!-- ========================= TOP SECTION =============================== -->  
+<!-- ===================================================================== -->  
+    <tr>                                                                        
+    <td colspan="3">                                                            
+    <table border="0" cellspacing="0" cellpadding="0" width="100%"              
+class="WhatIfTitle">                                                            
+    <tr>                                                                        
+        <td class="WhatIfHeadBorderDark">                                       
+            <img src="Images_DG2/spacer.gif" alt="" height="1"><br />           
+        </td>                                                                   
+    </tr>                                                                       
+    <tr>                                                                        
+        <td class="WhatIfHeadBorderLight">                                      
+            <img src="Images_DG2/spacer.gif" alt="" height="1"><br />           
+        </td>                                                                   
+    </tr>                                                                       
+    <tr>                                                                        
+        <td align="left" valign="top">                                          
+            <table border="0" cellspacing="0" cellpadding="4" width="100%">     
+                <tr>                                                            
+                    <td align="left" valign="middle">                           
+<$ILMASK DEP=SHOWAREAS>                                                         
+                        <span class="WhatIfBlockSection">                       
+                            Choose Your Future Classes                          
+                        </span>                                                 
+</$ILMASK> <<<< showareas                                                       
+                    </td>                                                       
+                </tr>                                                           
+            </table>                                                            
+        </td>                                                                   
+    </tr>                                                                       
+    <tr>                                                                        
+        <td class="WhatIfHeadBorderLight">                                      
+            <img src="Images_DG2/spacer.gif" alt="" height="1"><br />           
+        </td>                                                                   
+    </tr>                                                                       
+    <tr>                                                                        
+        <td class="WhatIfHeadBorderDark">                                       
+            <img src="Images_DG2/spacer.gif" alt="" height="1"><br />           
+        </td>                                                                   
+    </tr>                                                                       
+    </table>                                                                    
+    </td>                                                                       
+    </tr>                                                                       
+                                                                                
+ <!-- section header -->                                                        
+    <tr>                                                                        
+        <!-- =============== LEFT SIDE COLUMN =========== -->                   
+        <td align="left" valign="top" width="250">                              
+            <table border="0" cellspacing="0" cellpadding="4" width="250">      
+                <tr>                                                            
+                    <td colspan="3">                                            
+                    <span class="WhatIfRemove">                                 
+                       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;                           
+                        Enter a course and click Add Course                     
+                    </span>                                                     
+                    </td>                                                       
+                </tr>                                                           
+                <tr>     <!------- DISCIPLINE ----------->                      
+                    <td class="LookAheadLabel" nowrap>                          
+                        <label for="DISCIPLINE" >                               
+                        <$ILUCX SRC=UCXSCR001 KEY=DISCIPLINE BYTES=1:20>           
+                        </label>                                                
+                    </td>                                                       
+                    <td class="LookAheadInput" nowrap>                          
+                      <input name=Discipline type=TEXT                          
+                             width="100px" size=12 maxlength=12>                
+                    </td>                                                       
+                                                                                
+                </tr>                                                           
+                <tr>     <!------- NUMBER ----------->                          
+                    <td class="LookAheadLabel" nowrap>                          
+                        <label for="NUMBER">                                    
+                        <$ILUCX SRC=UCXSCR001 KEY=NUMBER BYTES=1:20>               
+                        </label>                                                
+                    </td>                                                       
+                    <td class="LookAheadInput">                                 
+                      <input name=Number type=TEXT                              
+                             width="100px" size=12 maxlength=12>                
+                                                                                
+                    </td>                                                       
+                </tr>                                                           
+                <tr>     <!------- ADD BUTTON ----------->                      
+                    <td class="LookAheadLabel" nowrap> &nbsp;                   
+                    </td>                                                       
+                    <td class="LookAheadInput">                                 
+                      <input name=btnAdd type=BUTTON value="Add Course"         
+                             class="LookAheadButton"                            
+                             onClick="AddClass(document.frmWhatIfBody)">        
+                    </td>                                                       
+                </tr>                                                           
+            </table>                                                            
+        </td>                                                                   
+        <!-- =============== RIGHT SIDE COLUMN =========== -->                  
+        <td align="right" valign="top">                                         
+            <table border="0" cellspacing="0" cellpadding="2" width="100%">     
+                <tr>                                                            
+                    <td align=left>                                             
+                        <label for="CLASSES">                                   
+                        <span class="WhatIfRemove">                             
+                        Courses you are considering</span>                      
+                        </label>                                                
+                    </td>                                                       
+                </tr>                                                           
+                <tr>                                                            
+                    <td align="left">                                           
+                        <select size="7" name="CLASSES" id="CLASSES"            
+                        class="LookAheadClasses" multiple>                      
+                            <option value="DUMMY">                              
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;      
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;      
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;      
+                                &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;      
+                                </option>                                       
+                        </select>                                               
+                    </td>                                                       
+                </tr>                                                           
+                <tr>                                                            
+                    <td align="left" valign="middle">                           
+                        <input type="button" name="REMOVE" value="Remove Course"
+                                                                                
+                        class="LookAheadButton"                                 
+                        onClick="RemoveClass(document.frmWhatIfBody.CLASSES)">  
+                    </td>                                                       
+                </tr>                                                           
+            </table><!-- RIGHT column table -->                                 
+        </td>                                                                   
+    </tr>                                                                       
+</$ILUCXMASK>                                                                   
+<!-- 1.04 End -->                                                               
+</$ILCGIMASK>                                                                   
+</table>                                                                        
+</form>                                                                         
+                                                                                
+</body>                                                                         
+</html>                                                                         
+</$ILMASK>  {{{{ SDWHATIF

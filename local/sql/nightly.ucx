@@ -1,0 +1,4 @@
+To extract UCX table(s) you need to add one UCX table per line in this file (e.g. for the Major Table you would enter STU023).
+Then uncomment the "bannerextract ucx nightly.ucx" line in the cron job script " /u01/home/dwadmin/cron/scripts/DW_nightly_maint.sh".
+NOTE: Delete these comments before using.
+Backup UCX tables before using the first time, using the dapucxunload command.

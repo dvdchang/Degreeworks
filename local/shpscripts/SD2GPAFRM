@@ -1,0 +1,179 @@
+<$ILENVMASK DWDEBUG=1>
+<!-- 
+ Copyright 1995-2012 Ellucian Company L.P. and its affiliates. 
+ $Id: //Tuxedo/RELEASE/Product/server/shpscripts/SD2GPAFRM#7 $ -->
+</$ILENVMASK>
+<html>                                                                          
+<head>                                                                          
+<link rel=StyleSheet href="DGW_Style.css" type="text/css">                      
+<script src="DGW_Charts.js"></script>                                           
+<noscript>JavaScript is Required!</noscript>                                    
+</head>                                                                         
+<body class="GPABodyBackground"       
+<$ILCGIMASK GPAPAGE=2ND>
+  onLoad="CalculateTheGPA();"                                          
+</$ILCGIMASK>
+topmargin=0 leftmargin=0 marginwidth=0 marginheight=0>                          
+                                                                                
+                                                                                
+<$ILINCLUDE SCRIPT=SD2GENFRM>                                                   
+name="frmHoldFields">                                           
+<script>                                                                        
+var sForm = document.frmHoldFields;                                             
+var sCreditsLit = '<$ILUCX SRC=UCXSCR001 KEY=CREDITS BYTES=1:30>';                 
+var iRounding = '<$ILUCX SRC=UCXCFG020 KEY=WEB BYTES=19:1>';
+  if (iRounding == ' ')
+  {
+     iRounding = 3*1;
+  }
+  else
+  {
+	iRounding = iRounding * 1
+  }
+var iRoundOrTruncate = '<$ILUCX SRC=UCXCFG020 KEY=WEB BYTES=20:1>';
+if (iRoundOrTruncate == ' ')
+{
+   iRoundOrTruncate = 'Y';
+}
+
+////////////////////////////////////////////////////////////////
+// This only gets called after the user clicks Calculate and this
+// page gets requested again; on the 2nd time we call this function
+// as soon as the page loads. This is all to get around a Chrome
+// and Safar back() issue.
+////////////////////////////////////////////////////////////////
+function CalculateTheGPA()
+{
+//alert ("Calculating the GPA now...");
+CalculateGPA(sForm, sCreditsLit, iRounding, iRoundOrTruncate);
+}
+
+</script>                                                                       
+
+<input type="hidden" name="CURRENTGPAFULL" value="<$ILCGI-CURRENTGPAFULL>">    
+<input type="hidden" name="SCRIPT"  value="SD2GPAFRM"> <!-- rescursive call -->          																				
+<input type="hidden" name="GPAPAGE" value="2ND">       <!-- used 2nd time this page is loaded -->
+																				
+<table cellspacing=0 cellpadding=0 border=0 class="GPABodyBackground"           
+ align="center" width="25%">                                                    
+  <!--Top Buffer Row Begin-->                                                   
+  <tr height=3><td><br></td></tr>                                               
+  <!--Top Buffer Row End-->                                                     
+                                                                                
+  <!--CurrentGPA Row Begin-->                                                   
+  <tr height=5>                                                                 
+     <td align=left valign=middle nowrap class="GPAFormTitle">                  
+        Current GPA                                                             
+     </td>                                                                      
+  <!--Middle Buffer Cell-->                                                     
+         <td align=left valign=bottom nowrap width="15"></td>                   
+     <td nowrap align=right>                                                    
+     <input class="GPAInputText" type="text" size="6" name="CURRENTGPA"          
+      id="CURRENTGPA" value="<$ILCGI-CURRENTGPA>" width="20"                    
+     onKeyPress="checkEnter(event, 'GRAD', sForm, sCreditsLit, '','', 
+	 iRounding, iRoundOrTruncate);">               
+     </td>                                                                      
+  </tr>                                                                         
+  <!--CurrentGPA Row End-->                                                     
+                                                                                
+                                                                                
+  <!--Remaining Row Begin-->                                                    
+  <tr height=5>                                                                 
+     <td align=left valign=middle nowrap class="GPAFormTitle">                  
+        <$ILUCX SRC=UCXSCR001 KEY=CREDITS BYTES=1:30>                              
+        Remaining                                                               
+     </td>                                                                      
+     <!--Middle Buffer Cell-->                                                  
+         <td align=left valign=bottom nowrap width="15"></td>                   
+     <td nowrap align=right>                                                    
+     <input class="GPAInputText" type="text" size="6" maxlength="3"             
+     name="CREDREMAIN" id="CREDREMAIN" value="<$ILCGI-CREDREMAIN>" width="20"   
+         onblur="CheckNumeric(sForm.CREDREMAIN);"                               
+     onKeyPress="checkEnter(event, 'GRAD', sForm, sCreditsLit, '','', 
+	 iRounding, iRoundOrTruncate);">               
+     </td>                                                                      
+  </tr>                                                                         
+   <!--Remaining Row End-->                                                     
+                                                                                
+  <!--Required Row Begin-->                                                     
+  <tr height=5>                                                                 
+     <td align=left valign=middle nowrap class="GPAFormTitle">                  
+    <!-- CMU Localization === Removed link from text 	 
+         <a href="javascript: OpenNewWindow('DegreeInfo.html');"                
+      class="GPAFormTitle">                                                     
+        <$ILUCX SRC=UCXSCR001 KEY=CREDITS BYTES=1:30>                              
+        Required</a>  
+    -->
+    <$ILUCX SRC=UCXSCR001 KEY=CREDITS BYTES=1:30> Required
+    <!-- CMU Localization === Removed link from text -->
+	
+    </td>                                                                       
+     <!--Middle Buffer Cell-->                                                  
+         <td align=left valign=bottom nowrap width="15"></td>                   
+     <td nowrap align=right>                                                    
+     <input class="GPAInputText" type="text" size="6" maxlength="3"             
+     name="CREDREQ" id="CREDREQ" value="<$ILCGI-CREDREQ>" width="20"            
+         onblur="CheckNumeric(sForm.CREDREQ);"                                  
+     onKeyPress="checkEnter(event, 'GRAD', sForm, sCreditsLit, '','', 
+	 iRounding, iRoundOrTruncate);">               
+     </td>                                                                      
+  </tr>                                                                         
+  <!--Required Row End-->                                                       
+                                                                                
+  <!--DesiredGPA Row Begin-->                                                   
+  <tr height=5>                                                                 
+     <td align=left valign=middle nowrap class="GPAFormTitle">                  
+        Desired GPA                                                             
+     </td>                                                                      
+     <!--Middle Buffer Cell-->                                                  
+         <td align=left valign=bottom nowrap width="15"></td>                   
+     <td nowrap align=right>                                                    
+     <input class="GPAInputText" type="text" size="6" maxlength="5"             
+     name="DESIREDGPA" id="DESIREDGPA" value="<$ILCGI-DESIREDGPA>" width="20"   
+         onblur="CheckNumeric(sForm.DESIREDGPA);"                               
+     onKeyPress="checkEnter(event, 'GRAD', sForm, sCreditsLit, '','', 
+	 iRounding, iRoundOrTruncate);">               
+     </td>                                                                      
+  </tr>                                                                         
+  <!--DesiredGPA Row End-->                                                     
+                                                                                
+  <!--Buffer Row Begin-->                                                       
+  <tr height=3><td><br></td></tr>                                               
+  <!--Buffer Row End-->                                                         
+                                                                                
+  <!--Button Row-->                                                             
+  <tr height=5>                                                                 
+     <td colspan=4>                                                             
+     <center>                                                                   
+        <input type="submit" value="Calculate" name="CALCBUTTON" class="GeneralButton" /> 
+       <!-- onclick="CalculateGPA(sForm, sCreditsLit, iRounding, iRoundOrTruncate);" -->
+     </center>                                                                  
+     </td>                                                                      
+  </tr>                                                                         
+</table>                                                                        
+                                                                                
+</form>                                                                         
+                                                                                
+<!-- CMU Localization === Added disclaimer -->
+<table cellspacing=0 cellpadding=0 border=0 class="GPAInputText"           
+ align="center" width="55%"> 
+ <tr>
+	<td>
+		&#160;
+	</td>
+</tr>
+ <tr>
+ <td align="left">
+ <span class="DisclaimerText">
+	Use this calculator to help estimate what GPA you will need to average over your 
+	remaining credits to graduate with the desired GPA. Use the audit on the Worksheets 
+	tab to determine credits remaining and credits required for your degree.
+ </span >
+ </td>
+ </tr>
+ 
+ </table>
+<!-- CMU Localization === End of Added disclaimer  -->                                                                                
+
+</body>                                                                         
+</html>                                                                         

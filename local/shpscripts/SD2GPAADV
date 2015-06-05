@@ -1,0 +1,216 @@
+<$ILENVMASK DWDEBUG=1>
+<!-- 
+ Copyright 1995-2012 Ellucian Company L.P. and its affiliates. 
+ $Id: //Tuxedo/RELEASE/Product/server/shpscripts/SD2GPAADV#7 $ -->
+</$ILENVMASK>
+<html>                                                                          
+<head>                                                                          
+<link rel=StyleSheet href="DGW_Style.css" type="text/css">                      
+<script src="DGW_Charts.js"></script>                                           
+<noscript>JavaScript is Required!</noscript>                                    
+<script src="DGW_Functions.js"></script>                                        
+<noscript>JavaScript is Required!</noscript>                                    
+</head>                                                                         
+<body class="GPABodyBackground"                                                 
+<$ILCGIMASK GPAPAGE=2ND>
+  onLoad="CalculateTheGPA();"                                          
+</$ILCGIMASK>
+topmargin=0 leftmargin=0 marginwidth=0 marginheight=0>                          
+                                                                                
+                                                                                
+<$ILINCLUDE SCRIPT=SD2GENFRM>                                                   
+name="frmHoldFields">                                           
+<script>                                                                        
+var sForm = document.frmHoldFields;                                             
+var iRounding = '<$ILUCX SRC=UCXCFG020 KEY=WEB BYTES=19:1>';
+  if (iRounding == ' ')
+  {
+     iRounding = 3*1;
+  }
+  else
+  {
+	iRounding = iRounding * 1
+  }
+var iRoundOrTruncate = '<$ILUCX SRC=UCXCFG020 KEY=WEB BYTES=20:1>';
+if (iRoundOrTruncate == ' ')
+{
+   iRoundOrTruncate = 'Y';
+}
+
+</script>                                                                       
+                                                                                
+<input type="hidden" name="STUID" value="<$ILCGI-STUID>">                       
+<input type="hidden" name="SCHOOL" value="<$ILCGI-SCHOOL>">                     
+<input type="hidden" name="CURRENTGPAFULL" value="<$ILCGI-CURRENTGPAFULL>">   
+<input type="hidden" name="SCRIPT"  value="SD2GPAADV"> <!-- rescursive call -->
+<input type="hidden" name="GPAPAGE" value="2ND">       <!-- used 2nd time this page is loaded -->
+                                                                                
+<table cellspacing=0 cellpadding=0 border=0 class="GPABodyBackground"           
+ align="center" width="25%">                                                    
+  <!--Top Buffer Row Begin-->                                                   
+  <tr height=3><td><br></td></tr>                                               
+  <!--Top Buffer Row End-->                                                     
+                                                                                
+  <!--CurrentGPA Row Begin-->                                                   
+  <tr height=5>                                                                 
+     <td align=left valign=middle nowrap class="GPAFormTitle">                  
+        Current GPA                                                             
+     </td>                                                                      
+  <!--Middle Buffer Cell-->                                                     
+     <td align=left valign=bottom nowrap width="15"></td>                       
+     <td nowrap align=left>                                                     
+     <input class="GPAInputText" type="text" size="6" name="CURRENTGPA"          
+      id="CURRENTGPA" value="<$ILCGI-CURRENTGPA>" width="20%"                   
+onKeyPress="checkEnter(event, 'ADV', sForm, sCreditsLit, '', sGradePicklist,
+iRounding, iRoundOrTruncate);"> 
+     </td>                                                                      
+  </tr>                                                                         
+  <!--CurrentGPA Row End-->                                                     
+                                                                                
+                                                                                
+  <!--Earned Row Begin-->                                                       
+  <tr height=5>                                                                 
+     <td align=left valign=middle nowrap class="GPAFormTitle">                  
+        <$ILUCX SRC=UCXSCR001 KEY=CREDITS BYTES=1:30>                              
+        Earned                                                                  
+     </td>                                                                      
+     <!--Middle Buffer Cell-->                                                  
+     <td align=left valign=bottom nowrap width="15"></td>                       
+     <td nowrap align=left>                                                     
+     <input class="GPAInputText" type="text" size="6" maxlength="3"             
+     name="CREDEARN" id="CREDEARN" value="<$ILCGI-CREDEARN>" width="20%"    
+     onblur="CheckNumeric(sForm.CREDEARN);"                                   
+onKeyPress="checkEnter(event, 'ADV', sForm, sCreditsLit, '', sGradePicklist, 
+iRounding, iRoundOrTruncate);"> 
+     </td>                                                                      
+  </tr>                                                                         
+  <!--Earned Row End-->                                                         
+                                                                                
+  <!--DesiredGPA Row Begin-->                                                   
+  <tr height=5>                                                                 
+     <td align=left valign=middle nowrap class="GPAFormTitle">                  
+        Desired GPA                                                             
+     </td>                                                                      
+     <!--Middle Buffer Cell-->                                                  
+     <td align=left valign=bottom nowrap width="15"></td>                       
+     <td nowrap align=left>                                                     
+     <input class="GPAInputText" type="text" size="6" maxlength="5"             
+     name="DESIREDGPA" id="DESIREDGPA" value="<$ILCGI-DESIREDGPA>" width="20%"  
+     onblur="CheckNumeric(sForm.DESIREDGPA);"                                   
+onKeyPress="checkEnter(event, 'ADV', sForm, sCreditsLit, '', sGradePicklist, 
+iRounding, iRoundOrTruncate);"> 
+     </td>                                                                      
+  </tr>                                                                         
+  <!--DesiredGPA Row End -->                                                    
+                                                                                
+  <!--Buffer Row Begin-->                                                       
+  <tr height=2><td><br></td></tr>                                               
+  <!--Buffer Row End-->                                                         
+                                                                                
+  <!--Button Row-->                                                             
+  <tr height=5>                                                                 
+     <td colspan=4>                                                             
+     <center>                                                                   
+        <input type="submit" value="Calculate" name="CALCBUTTON"/>
+     </center>                                                                  
+     </td>                                                                      
+  </tr>                                                                         
+</table>                                                                        
+                                                                                
+<script>                                                                        
+function GradeItem(sGrade, sNumericGrade, sSchool)                                   
+{                                                                               
+  this.grade = sGrade;                                                          
+  this.numericGrade = sNumericGrade;                                                      
+  this.school = sSchool;                                                        
+}                                                                               
+sGradePicklistHold = new Array();                                               
+sGradePicklist = new Array();                                                   
+// Filter on the Use in GPA Calc flag - but create an if-stmt on
+// the Graded Attempted flag - we only want those with a Y (a 2nd filter really)
+<$ILPICK SRC=UCXSTU385 revsortbyvalue=1:7                                        
+  Restrict 87:1=Y                                                               
+  text={if ("}        
+  value=12:1
+  text={" == "Y")}        
+  text={  sGradePicklistHold[sGradePicklistHold.length] = new GradeItem("}        
+  key=18:6 text={", "}                                                          
+  value=1:7                                                                     
+  text={", "}                                                                   
+  key=1:12                                                                      
+  text={");}                                                                    
+>                                                                               
+
+//dummy Value for the sGradePicklist:  the negative value will work             
+sGradePicklistHold[sGradePicklistHold.length] =                                 
+  new GradeItem("dumm", "-1", '<$ILCGI-SCHOOL>');                               
+sStuSchool =  '<$ILCGI-SCHOOL>';  // School                                     
+z = 0;                                                                          
+if (sGradePicklistHold.length < 2)                                              
+{                                                                               
+  document.write("<span class='GPATermResultCellBig'>");                        
+  document.write("Error<br> The grade information in UCX-STU385 has not been ");    
+  document.write("set up.  Please alert the Computer Center.  We apologize ");  
+  document.write("for the inconvenience. </span>");                             
+  sForm.CALCBUTTON.disabled=true;                                               
+}                                                                               
+for (x = 0; x < sGradePicklistHold.length ; x++ )                               
+{                                                                               
+  if (Trim(sGradePicklistHold[x].school) == Trim(sStuSchool))                   
+  {                                                                             
+  sGradePicklist[z] = new GradeItem(sGradePicklistHold[x].grade,                
+                                    sGradePicklistHold[x].numericGrade);             
+  sGradePicklist[z].grade = Trim(sGradePicklist[z].grade);                      
+  sGradePicklist[z].numericGrade = sGradePicklist[z].numericGrade * .001;                 
+  sGradePicklist[z].numericGrade = RoundNum(sGradePicklist[z].numericGrade, 3, true);     
+  z++;                                                                          
+  }                                                                             
+}                                                                               
+                                                                                
+sCreditsLit  = "<$ILUCX SRC=UCXSCR001 KEY=CREDITS BYTES=1:30>";  
+
+
+////////////////////////////////////////////////////////////////
+// This only gets called after the user clicks Calculate and this
+// page gets requested again; on the 2nd time we call this function
+// as soon as the page loads. This is all to get around a Chrome
+// and Safar back() issue.
+////////////////////////////////////////////////////////////////
+function CalculateTheGPA()
+{
+// Record the history length before redrawing this page with the results
+// In IE, back() will bring us back 2 pages while in Chrome it will only
+// bring us back 1 page - because the page that is drawn is not really a new page.
+iParentHistoryLength = window.history.length;
+//alert ("Calculating the GPA now...");
+CalculateAdviceGPA(sForm, sGradePicklist, sCreditsLit, iRounding, iRoundOrTruncate);
+}                  
+                                                                                
+</script>                                                                       
+                                                                                
+</form>                                                                         
+
+<!-- CMU Localization === Added disclaimer -->
+<table cellspacing=0 cellpadding=0 border=0 class="GPAInputText"           
+ align="center" width="55%"> 
+ <tr>
+	<td>
+		&#160;
+	</td>
+</tr>
+ <tr>
+ <td align="left">
+ <span class="DisclaimerText">
+	Use this calculator to estimate how many more credits and what 
+	average GPA you need in order to achieve your desired GPA if you have
+    credits earned. If your credits earned is 0, please use the Term Calculator
+    to estimate what your GPA will be at the end of the term.
+ </span >
+ </td>
+ </tr>
+ 
+ </table>
+<!-- CMU Localization === End of Added disclaimer  -->    
+                                                                               
+</body>                                                                         
+</html>                                                                         

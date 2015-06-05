@@ -1,0 +1,315 @@
+<$ILMASK SERVICE=SDXML30  DEP=ALLOWSERVICE>                                        
+</$ILMASK>                                                                   
+<$ILMASK SERVICE=SDXML31  DEP=ALLOWSERVICE>                                        
+</$ILMASK>                                                                   
+<$ILMASK SERVICE=SDXML32  DEP=ALLOWSERVICE>                                         
+</$ILMASK>                                                                   
+<$ILMASK SERVICE=SDWHATIF DEP=ALLOWSERVICE>                                       
+</$ILMASK>                                                                   
+<$ILMASK SERVICE=SDLOKAHD DEP=ALLOWSERVICE>                                       
+</$ILMASK>                                                                   
+<$ILMASK SERVICE=SDAIDRUN DEP=ALLOWSERVICE>                                       
+</$ILMASK>                                                                   
+<$ILMASK SERVICE=SDATHRUN DEP=ALLOWSERVICE>                                       
+</$ILMASK>                                                                   
+<$ILMASK SERVICE=SDAUDRUN DEP=ALLOWSERVICE>                                       
+</$ILMASK>                                                                   
+<$ILMASK SERVICE=SDAIDREV DEP=ALLOWSERVICE>                                       
+</$ILMASK>                                                                   
+<$ILMASK SERVICE=SDATHREV DEP=ALLOWSERVICE>                                       
+</$ILMASK>                                                                   
+<$ILMASK SERVICE=SDAUDREV DEP=ALLOWSERVICE>                                       
+</$ILMASK>                                                                   
+<$ILMASK DEP=ALLOWSERVICE> }}}}}}}} only allow these services
+<$ILCGIMASK ACTION=RUNAUDIT    DEP=ALLOWACTION>                                                 
+</$ILCGIMASK>                                                                   
+<$ILCGIMASK ACTION=REVAUDIT    DEP=ALLOWACTION>                                                 
+</$ILCGIMASK>                                                                   
+<$ILCGIMASK ACTION=WHATIFAUDIT DEP=ALLOWACTION>                                                 
+</$ILCGIMASK>                                                                   
+<$ILMASK DEP=ALLOWACTION> }}}}}}}} only allow these actions
+<$ILCGIMASK REPORT=XML30>                                                       
+<?xml version="1.0" encoding="ISO-8859-1"?>                                     
+<$ILCGIMASK NOT XMLVIEWER=YES> >> Don't use the xsl if we want the viewer       
+<?xml-stylesheet type="text/xsl"                                                
+                 xhref="DGW_Report.xsl"             
+                 href="<$ILUCX SRC=UCXRPT036 KEY=XML30 BYTES=31:20>" ?>            
+</$ILCGIMASK>                                                                   
+<Report                                                                         
+  rptReportName="Diagnostics Audit"     									  
+  rptInstitutionName="<$ILENV-SRNDWAUDITTITLE>"                                 
+  rptDateFormat="<$ILUCX SRC=UCXCFG020 KEY=WEB BYTES=21:3>"
+  rptShowNoteCheckbox="<$ILUCX SRC=UCXCFG020 KEY=WEB BYTES=4:1>" 
+rptStudentName="Deans, Aoife"	      
+rptUsersId="987654321"			      
+rptShowStudentSystemGPA="Y"	rptShowBlockRemarks="Y"	rptShowQualifierText="N" rptShowQualifierAdvice="Y"			  rptShowRuleRemarks="Y"				  
+rptShowRuleExceptions="Y"			  rptShowRuleAdvice="Y"				  rptShowRuleText="N"					  rptShowRuleClassesApplied="Y"		  
+rptShowFallThroughSection="Y" rptShowInsufficientSection="Y" rptShowOverTheLimitSection="Y" rptShowInProgressSection="Y" rptShowNotesSection="Y"				  
+rptShowExceptionsSection="Y"		  rptShowErrorsSection="Y"			  rptShowSplitCreditsSection="Y"		  
+rptShowLegend="Y"					  rptShowDisclaimer="Y"				  rptShowProgressBar="Y"				  
+rptSCADCurrentTerm ="Fall 12"		  rptShowOR-ANDsInsteadOfComma-Plusses="Y" rptPrereqIndicator="Y"					
+rptShowAdviceLink="Y"				  rptShowClassCourseKeysOnly="N"	rptShowStudentHeader="Y"	rptShowStudentAlerts="Y"	rptCFG020AuditTitleStyle="A"			
+rptCFG020MaskStudentID="N"			  rptCreditsLiteral="Credits"	rptCreditSingular="Credit"	rptCatYrLit="Catalog Year"				
+rptHideInnerGroupLabels="Y"			rptHideSubsetLabels="N"					rptIncludeBlocks="Y"					
+>                                                                               
+<$ILSERVER SERVER=DAP09 SERVICE=SDXML30>                                        
+                                                                                
+<ReloadButtons when="Now">                                                      
+</ReloadButtons>                                                                
+                                                                                
+</Report>                                                                       
+                                                                                
+</$ILCGIMASK>  // XML30                                                         
+<$ILCGIMASK REPORT=XML31>  // Transcript report                                 
+<?xml version="1.0" encoding="ISO-8859-1"?>                                     
+<?xml-stylesheet type="text/xsl"                                                
+                 href="<$ILUCX SRC=UCXRPT036 KEY=XML31 BYTES=31:20>" ?>            
+<Report                                                                         
+         rptInstitutionName="<$ILENV-SRNDWAUDITTITLE>"                          
+         rptReportName="<$ILUCX SRC=UCXRPT036 KEY=XML31 BYTES=1:30>"               
+         rptStudentName="<$ILSTUNAME PARM=STD>"                                 
+rptShowStudentSystemGPA="<$ILUCX SRC=UCXRPT036 KEY=<$ILCGI-REPORT> BYTES=85:1>"    
+rptCFG020AuditTitleStyle="<$ILUCX SRC=UCXCFG020 KEY=WEB BYTES=9:1>"                   
+rptCFG020MaskStudentID="<$ILUCX SRC=UCXCFG020 KEY=WEB BYTES=15:1>"                    
+rptShowStudentHeader="<$ILUCX SRC=UCXRPT036 KEY=<$ILCGI-REPORT> BYTES=76:1>" 
+>                                                                               
+<$ILSERVER SERVER=DAP09 SERVICE=SDXML31>                                        
+</Report>                                                                       
+</$ILCGIMASK>                                                                   
+<$ILCGIMASK REPORT=XML32>                                                       
+<?xml version="1.0" encoding="ISO-8859-1"?>                                     
+<$ILCGIMASK NOT XMLVIEWER=YES> >> Don't use the xsl if we want the viewer       
+<?xml-stylesheet type="text/xsl"                                                
+                 href="<$ILUCX SRC=UCXRPT036 KEY=XML32 BYTES=31:20>" ?>            
+</$ILCGIMASK>                                                                   
+                                                                                
+<Report                                                                         
+  SomeInfo="Student Data Report"                                                
+  rptInstitutionName="<$ILENV-SRNDWAUDITTITLE>"                                 
+>                                                                               
+                                                                                
+<!-- This is all of the RAD data for this student - shown as XML -->            
+<$ILSERVER SERVER=DAP09 SERVICE=SDXML32                                         
+           NVP=ACTION=GETRADTABLES                                              
+           NVP=GETSTUDATA=Y                                                     
+           NVP=TABLE=PRIMARY                                                    
+           NVP=TABLE=STUDENT                                                    
+           NVP=TABLE=HASH                                                       
+           NVP=TABLE=TERM                                                       
+           NVP=TABLE=CLASS                                                      
+           NVP=TABLE=TRANSFER                                                   
+           NVP=TABLE=ATTR                                                       
+           NVP=TABLE=CUSTOM                                                     
+           NVP=TABLE=REPORT                                                     
+           NVP=TABLE=TEST                                                       
+           NVP=TABLE=NONCRSE                                                    
+           NVP=TABLE=AID                                                        
+           NVP=TABLE=GOAL                                                       
+           NVP=TABLE=GOALDATA                                                   
+           NVP=TABLE=PREVINST
+>                                                                               
+                                                                                
+<ReloadButtons when="Now">                                                      
+</ReloadButtons>                                                                
+                                                                                
+</Report>                                                                       
+                                                                                
+</$ILCGIMASK>  // XML32                                                         
+<$ILCGIMASK NOT REPORT=XML30>                                                   
+<$ILCGIMASK NOT REPORT=XML31>                                                   
+<$ILCGIMASK NOT REPORT=XML32>                                                   
+<?xml version="1.0" encoding="ISO-8859-1"?>                                     
+<?xml-stylesheet type="text/xsl"                                                
+                 href="<$ILUCX SRC=UCXRPT036 KEY=<$ILCGI-REPORT> BYTES=31:20>" ?>  
+<Report                                                                         
+ rptInstitutionName="<$ILENV-SRNDWAUDITTITLE>"                                   
+ rptReportName="<$ILUCX SRC=UCXRPT036 KEY=<$ILCGI-REPORT> BYTES=1:30>"              
+ rptReportCode="<$ILCGI-REPORT>"              
+ rptUserClass="<$IL*DGWUSERCLASS>"
+ rptStudentName="<$ILSTU*SRNNAME>"                                               
+ rptUsersId="<$ILBOXID>"           
+                                                                                
+ rptShowStudentSystemGPA="<$ILUCX SRC=UCXRPT036 KEY=<$ILCGI-REPORT> BYTES=85:1>"
+                                                                                
+ rptShowBlockRemarks="<$ILUCX SRC=UCXRPT036 KEY=<$ILCGI-REPORT>    BYTES=51:1>"  
+ rptShowQualifierText="<$ILUCX SRC=UCXRPT036 KEY=<$ILCGI-REPORT>   BYTES=52:1>" 
+ rptShowBlockExceptions="<$ILUCX SRC=UCXRPT036 KEY=<$ILCGI-REPORT> BYTES=53:1>" 
+ rptShowQualifierAdvice="<$ILUCX SRC=UCXRPT036 KEY=<$ILCGI-REPORT> BYTES=55:1>" 
+                                                                                
+ rptShowRuleRemarks="<$ILUCX SRC=UCXRPT036 KEY=<$ILCGI-REPORT> BYTES=56:1>" 
+ rptShowRuleExceptions="<$ILUCX SRC=UCXRPT036 KEY=<$ILCGI-REPORT> BYTES=58:1>" 
+ rptShowRuleAdvice="<$ILUCX SRC=UCXRPT036 KEY=<$ILCGI-REPORT> BYTES=59:1>" 
+ rptShowRuleText="<$ILUCX SRC=UCXRPT036 KEY=<$ILCGI-REPORT> BYTES=60:1>" 
+ rptShowRuleClassesApplied="<$ILUCX SRC=UCXRPT036 KEY=<$ILCGI-REPORT> BYTES=61:1>"  
+                                                                                
+ rptShowFallThroughSection="<$ILUCX SRC=UCXRPT036 KEY=<$ILCGI-REPORT> BYTES=62:1>"  
+ rptShowInsufficientSection="<$ILUCX SRC=UCXRPT036 KEY=<$ILCGI-REPORT> BYTES=63:1>" 
+ rptShowOverTheLimitSection="<$ILUCX SRC=UCXRPT036 KEY=<$ILCGI-REPORT> BYTES=64:1>" 
+ rptShowInProgressSection="<$ILUCX SRC=UCXRPT036 KEY=<$ILCGI-REPORT> BYTES=65:1>"   
+ rptShowNotesSection="<$ILUCX SRC=UCXRPT036 KEY=<$ILCGI-REPORT> BYTES=66:1>"  
+ rptShowExceptionsSection="<$ILUCX SRC=UCXRPT036 KEY=<$ILCGI-REPORT> BYTES=67:1>"   
+ rptShowErrorsSection="<$ILUCX SRC=UCXRPT036 KEY=<$ILCGI-REPORT> BYTES=68:1>" 
+ rptShowSplitCreditsSection="<$ILUCX SRC=UCXRPT036 KEY=<$ILCGI-REPORT> BYTES=82:1>" 
+                                                                                
+ rptShowLegend = "<$ILUCX SRC=UCXRPT036 KEY=<$ILCGI-REPORT> BYTES=69:1>"    
+ rptShowDisclaimer = "<$ILUCX SRC=UCXRPT036 KEY=<$ILCGI-REPORT> BYTES=70:1>" 
+ rptShowProgressBar = "<$ILUCX SRC=UCXRPT036 KEY=<$ILCGI-REPORT> BYTES=71:1>" 
+                                                                                
+ rptShowOR-ANDsInsteadOfComma-Plusses="<$ILUCX SRC=UCXRPT036 KEY=<$ILCGI-REPORT> BYTES=72:1>"      
+ rptPrereqIndicator="<$ILUCX SRC=UCXRPT036 KEY=<$ILCGI-REPORT> BYTES=73:1>" 
+ rptShowAdviceLink="<$ILUCX SRC=UCXRPT036 KEY=<$ILCGI-REPORT> BYTES=74:1>"  
+ rptShowClassCourseKeysOnly="<$ILUCX SRC=UCXRPT036 KEY=<$ILCGI-REPORT> BYTES=75:1>" 
+ rptShowStudentHeader="<$ILUCX SRC=UCXRPT036 KEY=<$ILCGI-REPORT> BYTES=76:1>" 
+ rptShowStudentAlerts="<$ILUCX SRC=UCXRPT036 KEY=<$ILCGI-REPORT> BYTES=77:1>" 
+                                                                                
+ rptCFG020AuditTitleStyle="<$ILUCX SRC=UCXCFG020 KEY=WEB BYTES=9:1>"  
+ rptCFG020MaskStudentID="<$ILUCX SRC=UCXCFG020 KEY=WEB BYTES=15:1>"   
+ rptDateFormat="<$ILUCX SRC=UCXCFG020 KEY=WEB BYTES=21:3>"
+ rptShowNoteCheckbox="<$ILUCX SRC=UCXCFG020 KEY=WEB BYTES=4:1>" 
+
+ rptCreditsLiteral="<$ILUCX SRC=UCXSCR001 KEY=CREDITS BYTES=1:30>"   
+ rptCreditSingular="<$ILUCX SRC=UCXSCR001 KEY=CREDIT  BYTES=1:30>"   
+       rptCatYrLit="<$ILUCX SRC=UCXSCR001 KEY=CATYR   BYTES=1:30>"   
+                                                                                
+ rptHideInnerGroupLabels="<$ILUCX SRC=UCXRPT036 KEY=<$ILCGI-REPORT> BYTES=79:1>"    
+ rptHideSubsetLabels="<$ILUCX SRC=UCXRPT036 KEY=<$ILCGI-REPORT> BYTES=80:1>" 
+ rptIncludeBlocks="<$ILUCX SRC=UCXRPT036 KEY=<$ILCGI-REPORT> BYTES=83:1>" 
+
+ rptCourseLeafURL        ="<$ILUCX SRC=UCXCFG020 KEY=LF_COURSELEAFURL BYTES=1:150>"
+ rptInstantRapportChatURL="<$ILUCX SRC=UCXCFG020 KEY=LF_IRCHATICONURL BYTES=1:150>"
+ rptInstantRapportTeam   ="<$ILUCX SRC=UCXCFG020 KEY=LEEPFROG         BYTES=1:20>"
+                                                                                
+<$ILCGIMASK ACTION=WHATIFAUDIT>                                                 
+ rptAuditAction="What If Audit"                  
+</$ILCGIMASK>                                                                   
+<$ILCGIMASK LOOKAHEAD=Y>                                                        
+ rptAuditAction="Look Ahead Audit"               
+</$ILCGIMASK>                                                                   
+<$ILCGIMASK REPORT=WEB50>    >>>>>>>>>>>>>>>>>> WEB50
+ rptAidShowAllBlocks="N"
+</$ILCGIMASK>                                                                   
+<$ILCGIMASK REPORT=WEB51>    >>>>>>>>>>>>>>>>>> WEB51
+ rptAidShowAllBlocks="Y"
+</$ILCGIMASK>                                                                   
+<$ILCGIMASK REPORT=WEB55>    >>>>>>>>>>>>>>>>>> WEB55
+ rptAthleteShowAllBlocks="N"
+</$ILCGIMASK>                                                                   
+<$ILCGIMASK REPORT=WEB56>    >>>>>>>>>>>>>>>>>> WEB56
+ rptAthleteShowAllBlocks="Y"
+</$ILCGIMASK>                                                                   
+
+<$ILUCXMASK SRC=UCXCFG020 KEY=WEB BYTES=26:1 value=Y>
+<$ILCGIMASK Not WHATIF=Y>                                                 
+<$ILMASK SERVICE=AUDFREEZ DEP=FREEZE>
+rptAllowFreezing="Y"
+</$ILMASK>
+</$ILCGIMASK>
+<$ILCGIMASK WHATIF=Y>                                                 
+<$ILMASK SERVICE=WIFFREEZ DEP=FREEZE>
+rptAllowFreezing="Y"
+</$ILMASK>
+</$ILCGIMASK>
+</$ILUCXMASK>
+<$ILUCXMASK SRC=UCXCFG020 KEY=WEB BYTES=27:1 value=Y>
+<$ILCGIMASK Not WHATIF=Y>                                                 
+<$ILMASK SERVICE=AUDDESCR>
+rptAllowDescriptionChange="Y"
+</$ILMASK>
+</$ILCGIMASK>
+<$ILCGIMASK WHATIF=Y>                                                 
+<$ILMASK SERVICE=WIFDESCR>
+rptAllowDescriptionChange="Y"
+</$ILMASK>
+</$ILCGIMASK>
+</$ILUCXMASK>
+                                                                                
+>                                                                               
+                                                                                
+<$ILCGIMASK ACTION=WHATIFAUDIT>                                                 
+ <$ILSERVER SERVER=DAP09 SERVICE=SDWHATIF>                                       
+</$ILCGIMASK>                                                                   
+<$ILCGIMASK Not ACTION=WHATIFAUDIT>                                                 
+ <$ILCGIMASK LOOKAHEAD=Y>                                                        
+ <$ILSERVER SERVER=DAP09 SERVICE=SDLOKAHD>                                       
+ </$ILCGIMASK>                                                                   
+ <$ILCGIMASK Not LOOKAHEAD=Y>                                                        
+  <$ILCGIMASK ACTION=RUNAUDIT>                                                 
+   <$ILCGIMASK AUDITTYPE=FA>    // Financial Aid
+    <$ILSERVER SERVER=DAP09 SERVICE=SDAIDRUN>                                       
+   </$ILCGIMASK>                                                                   
+   <$ILCGIMASK Not AUDITTYPE=FA> // not Financial Aid
+    <$ILCGIMASK AUDITTYPE=AE>    // Athletic Eligibility
+     <$ILSERVER SERVER=DAP09 SERVICE=SDATHRUN>                                       
+    </$ILCGIMASK>                                                                   
+    <$ILCGIMASK Not AUDITTYPE=AE>    // not AE - must be normal academic audit
+     <$ILSERVER SERVER=DAP09 SERVICE=SDAUDRUN>                                       
+    </$ILCGIMASK>                                                                   
+   </$ILCGIMASK>                                                                   
+  </$ILCGIMASK> // action=runaudit
+
+  <$ILCGIMASK Not ACTION=RUNAUDIT>                                                 
+   <$ILCGIMASK AUDITTYPE=FA>    // Financial Aid
+    <$ILSERVER SERVER=DAP09 SERVICE=SDAIDREV>                                       
+   </$ILCGIMASK>                                                                   
+   <$ILCGIMASK Not AUDITTYPE=FA> // not Financial Aid
+    <$ILCGIMASK AUDITTYPE=AE>    // Athletic Eligibility
+     <$ILSERVER SERVER=DAP09 SERVICE=SDATHREV>                                       
+    </$ILCGIMASK>                                                                   
+    <$ILCGIMASK Not AUDITTYPE=AE>    // not AE - must be normal academic audit
+     <$ILSERVER SERVER=DAP09 SERVICE=SDAUDREV>                                       
+    </$ILCGIMASK>                                                                   
+   </$ILCGIMASK>                                                                   
+  </$ILCGIMASK> // not runaudit
+
+ </$ILCGIMASK> // no lookahead                                                                  
+</$ILCGIMASK>  // not What-if
+                                                                                
+<ReloadButtons when="Now">                                                      
+</ReloadButtons>                                                                
+
+<!--
+<FreezeTypes>
+  <Type Code="REGOFC" Description="Frozen by Reg Office">
+    <UserClass>REG</UserClass>
+  </Type>
+</FreezeTypes>
+-->
+<$ILMASK DEP=FREEZE>
+<FreezeTypes>
+<$ILPICK SRC=UCXAUD032 sortbyvalue=1:30
+  text={<Type Code="}  key=1:6  text={" Description="}  value=1:30  text={" >}
+    text={<UserClass>} value=31:4  text={</UserClass>}
+    text={<UserClass>} value=35:4  text={</UserClass>}
+    text={<UserClass>} value=39:4  text={</UserClass>}
+    text={<UserClass>} value=43:4  text={</UserClass>}
+    text={<UserClass>} value=47:4  text={</UserClass>}
+    text={<UserClass>} value=51:4  text={</UserClass>}
+    text={<UserClass>} value=55:4  text={</UserClass>}
+    text={<UserClass>} value=59:4  text={</UserClass>}
+    text={<UserClass>} value=63:4  text={</UserClass>}
+    text={<UserClass>} value=67:4  text={</UserClass>}
+  text={</Type>}
+>
+</FreezeTypes>
+
+</$ILMASK>
+
+
+<AttrList> <!-- CMU CMU Localization  -->
+<$ILPICK SRC=UCXSTU050 sortbyvalue=1:30
+  text={<Attribute Code="}  key=1:4  text={" Description="}  value=1:30  text={" />}
+>
+</AttrList>
+                                                                                
+</Report>                                                                       
+                                                                                
+</$ILCGIMASK> // Not XML32                                                      
+</$ILCGIMASK> // Not XML31                                                      
+</$ILCGIMASK> // Not XML30                                                      
+</$ILMASK> // DEP=ALLOWACTION                                                
+</$ILMASK> // DEP=ALLOWSERVICE                                                
+<$ILENVMASK DWDEBUG=1>
+<!-- 
+ Copyright 1995-2012 Ellucian Company L.P. and its affiliates. 
+ $Id: //Tuxedo/RELEASE/Product/server/shpscripts/SD2GETAUD#6 $ -->
+</$ILENVMASK>

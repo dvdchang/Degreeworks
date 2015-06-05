@@ -1,0 +1,352 @@
+<$ILENVMASK DWDEBUG=1>
+<!-- 
+ Copyright 1995-2012 Ellucian Company L.P. and its affiliates. 
+ $Id: //Tuxedo/RELEASE/Product/server/shpscripts/SD2AUDCON#4 $ -->
+</$ILENVMASK>
+<$ILMASK SERVICE=SDAUDIT>                                                       
+<$ILINCLUDE SCRIPT=SD2INCHD1>                                                   
+Audit Control                                                                   
+<$ILINCLUDE SCRIPT=SD2INCHD2>                                                   
+<!--                                                                            
+<script src="ToolTip.js"></script>                                              
+<script src="DGW_Functions.js"></script>
+<noscript>JavaScript is Required!</noscript>                                    
+-->                                                                             
+<script language="JavaScript">                                                  
+function ClassHist()                                                            
+{                                                                               
+// Create a new window for the class history report to appear                   
+var iWidth  = 600;                                                              
+var iHeight = 600;                                                              
+var iXPlace = 300;                                                              
+var iYPlace = 200;                                                              
+var sWindowParams = "width=" + iWidth + ",height=" + iHeight + "," +            
+            "toolbar=no,location=no,directories=no,status=no," +                
+            "menubar=no," + "scrollbars=yes,resizable=yes";                     
+var sWindowName = "wClassHistory";                                              
+var wNew = window.open("", sWindowName, sWindowParams);                         
+wNew.resizeTo (iWidth, iHeight);                                                
+wNew.moveTo   (iXPlace, iYPlace);                                               
+                                                                                
+   // Get the xml audit and place it in the new window                          
+top.frControl.GetAudit('REVAUDIT', 'SD2GETAUD' +                                
+                       document.frmAuditForm.ContentType.value,                 
+                       sWindowName, "XML31");                                   
+   wNew.focus(); // in case it was placed in the background                     
+} // classhist                                                                  
+///////////////////////////////////// PDF Audit                                 
+function PDFAudit()                                                             
+{                                      
+<$ILINCLUDE SCRIPT=PDFREPORTCHECK>                                                   
+                                         
+// Create a new window for the class history report to appear                   
+var iWidth  = 600;                                                              
+var iHeight = 600;                                                              
+var iXPlace = 300;                                                              
+var iYPlace = 200;                                                              
+var sWindowParams = "width=" + iWidth + ",height=" + iHeight + "," +            
+            "toolbar=no,location=no,directories=no,status=no," +                
+            "menubar=no," + "scrollbars=yes,resizable=yes";                     
+// CMU Localization = Fix - Change var name to SaveAsPDF 
+//var sWindowName = "wClassHistory";  
+var sWindowName = "wSaveAsPDF"; 
+var wNew = window.open("", sWindowName, sWindowParams);                         
+WriteWaitingMsgThisFrame(wNew);
+
+wNew.resizeTo (iWidth, iHeight);                                                
+wNew.moveTo   (iXPlace, iYPlace);                                               
+                                                                                
+// Get the xml audit and place it in the new window                          
+
+// Enable this option to allow the Save/Open dialog box to appear:
+// Tools - Internet Options - Security - Custom Level
+// Downloads - Automatic prompting for file downloads - Enable 
+top.frControl.GetAudit('REVAUDIT', 'SD2GETAUD' +                                
+                       document.frmAuditForm.PDFContentType.value,              
+                       sWindowName);  // window.frHold); 
+wNew.focus(); // in case it was placed in the background                     
+} // pdfaudit                                                                   
+
+///////////////////////////////////////////////////////
+function OpenEmailWindowSearch(strScript, strName)
+{
+var wChild = null;
+var iWidth  = 600;                                                              
+var iHeight = 600;                                                              
+var iXPlace = 300;                                                              
+var iYPlace = 200;                                                              
+var sWindowParams = "width=" + iWidth + ",height=" + iHeight + "," +            
+            "toolbar=no,location=no,directories=no,status=no," +                
+            "menubar=no," + "scrollbars=yes,resizable=yes";                   
+			
+	document.OpenEmailForm.SCRIPT.value = strScript;
+	document.OpenEmailForm.target = strName;
+	if (!wChild || wChild.closed) 
+	{
+		wChild = window.open("",strName, sWindowParams);
+		wChild.resizeTo(iWidth, iHeight);
+		wChild.moveTo(iXPlace, iYPlace);
+		document.OpenEmailForm.submit();
+		//wChild.opener=self;
+		wChild.focus();
+	 } 
+	 else //not child
+	 {
+	 	wChild.opener=self;
+	 	wChild.focus();
+	 }
+} // OpenEmailWindowSearch
+
+function DisplayDate(sCCYYMMDD)                                                 
+{                                                                               
+    document.write(sCCYYMMDD.substring (4, 6) + "." + sCCYYMMDD.substring(6, 8) 
+    + "." + sCCYYMMDD.substring (0, 4));                                        
+} // displaydate                                                                
+function DisplayTime(sHHMM)                                                     
+{                                                                               
+    document.write(sHHMM.substring (0, 2) + ":" +  sHHMM.substring (2, 4));     
+} // displaytime                                                                
+function ViewAuditOnLoad ()                                                     
+{                                                                               
+    //document.frmAuditForm.REVIEW.click();                                     
+	top.frControl.GetAudit('REVAUDIT', 'SD2GETAUD' +                               
+		document.frmAuditForm.ContentType.value);                                     
+}                                                                               
+function ToggleButtons (sStatus)                                                
+{                                                                               
+	sForm = frmAuditForm;                                                          
+                                                                                
+	if (sForm.REVIEW.disabled && sStatus == "on")                                  
+	{                                                                              
+		sForm.REVIEW.disabled = false; // enable it                                   
+	}                                                                              
+	else                                                                           
+	{                                                                              
+		sForm.REVIEW.disabled = true;                                                 
+	}                                                                              
+	<$ILMASK SERVICE=SDAUDRUN>  >>>>> User is allowed to RUN AUDITS                
+	if (sForm.RUN.disabled && sStatus == "on")                                     
+	{                                                                              
+		sForm.RUN.disabled = false;                                                   
+	}                                                                              
+	else                                                                           
+	{                                                                              
+		sForm.RUN.disabled = true;                                                    
+	}                                                                              
+	</$ILMASK>                                                                     
+}                                                                               
+                                                                                
+</script>                                                                       
+<noscript>JavaScript is Required!</noscript>                                    
+<body class="ContextBackground" topmargin="0" leftmargin="0" marginwidth="0"    
+marginheight="0" onLoad="ViewAuditOnLoad();">                                   
+<!--                                                                            
+<div id="tooltip" style="position:absolute;visibility:hidden"></div>            
+-->                                                                             
+<table cellspacing="0" cellpadding="0" border="0" width="100%">                 
+    <tr height="42">                                                            
+<$ILINCLUDE SCRIPT=SD2GENFRM>                                                   
+name="frmAuditForm">                                                            
+        <input type="hidden" name="SERVICE" value="SCRIPTER">                   
+        <input type="hidden" name="ContentType" value="&ContentType=xml">       
+        <input type="hidden" name="PDFContentType" value="&ContentType=pdf">    
+        <input type="hidden" name="USERID" value="<$ILBOXID>">                  
+        <input type="hidden" name="STUID" value="<$ILCGI-STUID>">               
+        <input type="hidden" name="SCHOOL" value="<$ILCGI-STUSCH>">             
+        <input type="hidden" name="DEGREE" value="<$ILCGI-STUDEG>">             
+        <input type="hidden" name="SUBMIT_TYPE" value=""> <!--1.1b-->           
+        <td align="left" valign="top" width="6" nowrap>                         
+            <img src="Images_DG2/spacer.gif" alt="" border="0" width="5"        
+            height="42">                                                        
+        </td>                                                                   
+        <td align="left" valign="top" width="6" nowrap>                         
+            <table cellspacing="0" cellpadding="0" border="0">                  
+                <tr>                                                            
+                    <td align="left" valign="top" nowrap                        
+                    class="FieldTitle"> Format:</td>                            
+                </tr>                                                           
+                <tr>                                                            
+                    <td align="left" valign="top" nowrap                        
+                    class="FieldTitle"></td>                                    
+                </tr>                                                           
+                <tr>                                                            
+                    <td align="left" valign="top" nowrap>                       
+                        <!-- Inlude the picklist of audit reports -->           
+<$ILINCLUDE SCRIPT=SD2RPTPICK>                                                  
+                    </td>                                                       
+                </tr>                                                           
+            </table>                                                            
+        </td>                                                                   
+        <td align="left" valign="top" nowrap>                                   
+            <img src="Images_DG2/spacer.gif" alt="" border="0" width="5"        
+            height="42">                                                        
+        </td>                                                                   
+        <!-- "View Audit" for students and "View Current" for non-students -->  
+<$ILMASK SERVICE=SDAUDREV>  >> User is allowed to view audits                   
+        <td align="left" valign="middle" width="6" nowrap>                      
+<$ILMASK DEP=RUNALLOWED>  >>>>> User is allowed to RUN AUDITS                   
+            <input type="button" name="REVIEW" value="View Current"             
+            class="GeneralButton" style="width: 100;"                           
+            onClick="ToggleButtons('off');                                      
+					top.frControl.GetAudit('REVAUDIT', 'SD2GETAUD' +                           
+                     document.frmAuditForm.ContentType.value)"                  
+			disabled="true">                                                             
+</$ILMASK>                                                                      
+<$ILMASK NOT DEP=RUNALLOWED>  >>>>> User is NOT allowed to RUN AUDITS           
+            <input type="button" name="REVIEW" value="View"                     
+            class="GeneralButton" style="width: 100;"                           
+            onClick="ToggleButtons('off');                                      
+					top.frControl.GetAudit('REVAUDIT', 'SD2GETAUD' +                           
+                     document.frmAuditForm.ContentType.value);"                 
+			disabled="true">                                                             
+</$ILMASK>                                                                      
+        </td>                                                                   
+</$ILMASK>                                                                      
+        <!-- "PDF Audit" -->                                                    
+<$ILMASK SERVICE=SDAUDPDF> >> User is allowed the pdf option                    
+        <td align="left" valign="middle" width="6" nowrap>                      
+        <input type="button" name="GETPDF" value="Save as PDF"                  
+               class="GeneralButton" style="width: 100;"                        
+               onClick="PDFAudit()">                                            
+        </td>                                                                   
+</$ILMASK>                                                                      
+<$ILMASK SERVICE=SDAUDEML> >> User is allowed the email option                    
+        <td align="left" valign="middle" width="6" nowrap>                      
+        <input type="button" name="SENDPDF" value="Email "                  
+               class="GeneralButton" style="width: 100;"                        
+               onClick="OpenEmailWindowSearch('SD2EMAILFRAMES', 'wEmail')">                                            
+        </td>                                                                   
+</$ILMASK>                                                                      
+        <td align="left" valign="top" nowrap>                                   
+            <img src="Images_DG2/spacer.gif" alt="" border="0" width="5"        
+            height="42">                                                        
+        </td>                                                                   
+<$ILMASK SERVICE=SDAUDRUN DEP=RUNALLOWED>  >>>>> User is allowed to RUN AUDITS  
+        <td nowrap align="left" valign="top">                                   
+            <img src="Images_DG2/Line_Bevel.gif" alt="">                        
+        </td>                                                                   
+        <td align="left" valign="top" nowrap>                                   
+            <img src="Images_DG2/spacer.gif" alt="" border="0" width="5"        
+            height="42">                                                        
+        </td>                                                                   
+        <td align="left" valign="middle" width="6" nowrap>                      
+            <input type="button" name=RUN    value="Process New"                
+            class="GeneralButton" style="width: 100;"                           
+            onClick="ToggleButtons('off');                                      
+					top.frControl.GetAudit('RUNAUDIT', 'SD2GETAUD' +                           
+                     document.frmAuditForm.ContentType.value)"                  
+			disabled="true">                                                             
+        </td>                                                                   
+        <td align="left" valign="top" nowrap>                                   
+            <img src="Images_DG2/spacer.gif" alt="" border="0" width="5"        
+            height="42">                                                        
+        </td>                                                                   
+        <td align="left" valign="middle" width="6" nowrap>                         
+            <table cellspacing="0" cellpadding="0" border="0">                  
+                                                                                
+<!-- 1.1b Start -->                                                             
+<$ILUCXMASK NOT SRC=UCXCFG020 KEY=WEB BYTES=5:1 value=N>                           
+                <!-- UCXCFG020 WEB 5:1 = Y or blank (Show InProgress Checkbox) --> 
+                <tr>                                                            
+                    <td>                                                        
+                        <input type="checkbox" name="InProgress"                
+                        id="InProgress"                                         
+                        class="AuditOptions"                                    
+<$ILUCXMASK NOT SRC=UCXCFG020 KEY=WEB BYTES=6:1 value=N>                           
+                        checked                                                 
+</$ILUCXMASK>                                                                   
+                        >                                                       
+                    </td>                                                       
+                    <td nowrap>                                                 
+                        <span class="AuditOptions">                             
+                        <label for="InProgress">                                
+                        Include                                                 
+                        <strong><b>in-progress</b></strong> classes             
+                        </label>                                                
+                        </span>                                                 
+                    </td>                                                       
+                </tr>                                                           
+</$ILUCXMASK>                                                                   
+<$ILUCXMASK SRC=UCXCFG020 KEY=WEB BYTES=5:1 value=N>                               
+                <!-- UCXCFG020 WEB 5:1 = N (Do Not Show InProgress Checkbox) -->   
+                <input type="hidden" name="InProgress" id="InProgress"          
+                       value=                                                   
+<$ILUCXMASK SRC=UCXCFG020 KEY=WEB BYTES=6:1 value=N>                               
+                       "N"                                                      
+</$ILUCXMASK>                                                                   
+<$ILUCXMASK NOT SRC=UCXCFG020 KEY=WEB BYTES=6:1 value=N>                           
+                       "Y"                                                      
+</$ILUCXMASK>                                                                   
+                       >                                                        
+</$ILUCXMASK>                                                                   
+                                                                                
+<$ILUCXMASK NOT SRC=UCXCFG020 KEY=WEB BYTES=7:1 value=N>                           
+                <!-- UCXCFG020 WEB 7:1 = Y or blank (Show PreReg Checkbox) -->     
+                <tr>                                                            
+                    <td>                                                        
+                        <input type="checkbox" name="CutOffTerm"                
+                        id="CutOffTerm"                                         
+                        class="AuditOptions"                                    
+<$ILUCXMASK NOT SRC=UCXCFG020 KEY=WEB BYTES=8:1 value=N>                           
+                        checked                                                 
+                        >                                                       
+</$ILUCXMASK>                                                                   
+                    </td>                                                       
+                    <td nowrap>                                                 
+                        <span class="AuditOptions">                             
+                        <label for="CutOffTerm">                                
+                        Include                                                 
+                        <strong><b>preregistered</b></strong> classes           
+                        </label>                                                
+                        </span>                                                 
+                    </td>                                                       
+                </tr>                                                           
+</$ILUCXMASK>                                                                   
+<$ILUCXMASK SRC=UCXCFG020 KEY=WEB BYTES=7:1 value=N>                               
+                <!-- UCXCFG020 WEB 7:1 = N (Do Not Show PreReg Checkbox) -->       
+                <input type="hidden" name="CutOffTerm" id="CutOffTerm"          
+                       value=                                                   
+<$ILUCXMASK SRC=UCXCFG020 KEY=WEB BYTES=8:1 value=N>                               
+                       "N"                                                      
+</$ILUCXMASK>                                                                   
+<$ILUCXMASK NOT SRC=UCXCFG020 KEY=WEB BYTES=8:1 value=N>                           
+                       "Y"                                                      
+</$ILUCXMASK>                                                                   
+                       >                                                        
+</$ILUCXMASK>                                                                   
+                                                                                
+<!-- 1.1b End -->                                                               
+            </table>                                                            
+        </td>                                                                   
+<!-- REFRESH information removed -- 1.07 -->                                    
+</$ILMASK> <<<<<<<<<<< END RUN AUDIT                                            
+                                                                                
+<$ILMASK SERVICE=SDXML31>                                                       
+        <!-- Class History report -->                                           
+        <td nowrap align="center" width="150" class="FieldTitle">                                  
+          <a href="javascript:ClassHist()" style="text-decoration: underline;"> 
+           <$ILUCX SRC=UCXRPT036 KEY=XML31 BYTES=1:30>                             
+      </a>                                                                      
+        </td>                                                                   
+</$ILMASK>                                                                      
+        <td align="left" valign="top" width="100%" nowrap>                      
+            <img src="Images_DG2/spacer.gif" alt="" border="0" width="5"        
+            height="42">                                                        
+        </td>                                                                   
+    </tr>                                                                       
+</table>                                                                        
+</form>                                                                         
+<$ILINCLUDE SCRIPT=SD2GENFRM>
+name="OpenEmailForm" target="">
+        <input type="hidden" name="SERVICE" value="SCRIPTER">
+        <input type="hidden" name="SCRIPT" value="">
+        <input type="hidden" name="SEARCHTYPE" value="">
+        <input type="hidden" name="STUID" value="<$ILCGI-STUID>">               
+        <input type="hidden" name="SCHOOL" value="<$ILCGI-STUSCH>">             
+        <input type="hidden" name="DEGREE" value="<$ILCGI-STUDEG>">             
+</form>
+
+
+</body>                                                                         
+</html>                                                                         
+</$ILMASK>

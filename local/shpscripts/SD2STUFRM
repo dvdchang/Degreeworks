@@ -1,0 +1,1155 @@
+<$ILENVMASK DWDEBUG=1>
+<!-- 
+ Copyright 1995-2012 Ellucian Company L.P. and its affiliates. 
+ $Id: //Tuxedo/RELEASE/Product/server/shpscripts/SD2STUFRM#7 $ -->
+</$ILENVMASK>
+<$ILINCLUDE SCRIPT=SD2INCHD1>                                                   
+Student Selection                                                               
+<$ILINCLUDE SCRIPT=SD2INCHD2>                                                   
+<script language="JavaScript">                                                  
+var global_FullName  = "";                                                      
+var global_FirstName = "";                                                      
+var global_LastName  = "";           
+
+var bAdvisorSearch = false; // obsolete really
+
+    // is_nav and is_ie are defined in BrowserSniffer.js in inc hd2 script           
+    if (is_nav4)                                                                
+    {                                                                           
+        document.captureEvents(Event.KEYDOWN|Event.KEYUP);                      
+    }                                                                           
+    // All browsers                                                             
+    document.onkeydown = keyDown;                                               
+    // When the user presses the Enter/Return key we will submit the form       
+    function keyDown(DnEvents)                                                  
+    {                                                                           
+        var iKey = (is_nav) ? DnEvents.which : window.event.keyCode;            
+        if (iKey == 13)                                                         
+        {                                                                       
+            SubmitForm();                                                       
+            return false;                                                       
+        }                                                                       
+    }                                                                           
+	///////////////////////////////////////////////////////////////////////////
+    function FormatNameSearch (LastName, FirstName)        /* 1.04 Begin */     
+    {                                                                           
+        var sFullName          = "";                                            
+        var bLastNameEntered   = false;                                         
+        var bFirstNameEntered  = false;                                         
+        var bLastNameWildcard  = false;                                         
+        var bFirstNameWildcard = false;                                         
+        var sFirstName         = "";                                            
+        var sLastName          = "";                                            
+                                                                                
+        if (Trim(LastName) != "")                                               
+        {                                                                       
+            bLastNameEntered = true;                                            
+            sLastName = Trim(LastName.toUpperCase());                           
+            if (sLastName.indexOf('@') > -1)                                    
+                bLastNameWildcard = true;                                       
+        }                                                                       
+        if (Trim(FirstName) != "")                                              
+        {                                                                       
+            bFirstNameEntered = true;                                           
+            sFirstName = Trim(FirstName.toUpperCase());                         
+            if (sFirstName.indexOf('@') > -1)                                   
+                bFirstNameWildcard = true;                                      
+        }                                                                       
+                                                                                
+        /*alert("bLastNameEntered   = " + bLastNameEntered   + "\n" +           
+                "bFirstNameEntered    = " + bFirstNameEntered   + "\n" +        
+                "bLastNameWildcard    = " + bLastNameWildcard   + "\n" +        
+                "bFirstNameWildcard   = " + bFirstNameWildcard  + "\n" +        
+                "sFirstName           = " + sFirstName + "\n" +                 
+                "sLastName            = " + sLastName);*/                       
+                                                                                
+        // Both First and Last name entered                                     
+        if (bFirstNameEntered && bLastNameEntered)                              
+        {                                                                       
+            // no wildcards at all                                              
+            if (!bLastNameWildcard && !bFirstNameWildcard)                      
+            {                                                                   
+                sFullName = sLastName + "," + sFirstName + "@";                 
+            }                                                                   
+            // First name wildcard, but last name no wildcard                   
+            else if (!bLastNameWildcard && bFirstNameWildcard)                  
+            {                                                                   
+                s = sFirstName; //use this to shorten next line.                
+                if (s.substring(s.length-1,s.length).indexOf('@') > -1)         
+                {                                                               
+                    sFullName = sLastName + "," + s; // user supplied own       
+                                            // wildcard in last supplied byte   
+                }                                                               
+                else // user supplied own wildcard - but not in last byte.      
+                {                                                               
+                    // include one for middle name and for partial name search  
+                    sFullName = sLastName + "," + sFirstName + '@';             
+                }                                                               
+            }                                                                   
+            else if (bLastNameWildcard && !bFirstNameWildcard)                  
+            {                                                                   
+                // same as first one above                                      
+                sFullName = sLastName + "," + sFirstName + "@";                 
+            }                                                                   
+            else // both have wildcards                                         
+            {                                                                   
+                s = sFirstName; //use this to shorten next line.                
+                if (s.substring(s.length-1,s.length).indexOf('@') > -1)         
+                    // user supplied own wildcard in last supplied byte         
+                    sFirstName = s;                                             
+                else // wildcard not in last byte                               
+                    sFirstName = s + '@';                                       
+                sFullName = sLastName + "," + sFirstName;                       
+            }                                                                   
+        }                                                                       
+                                                                                
+        // First name only                                                      
+        else if (bFirstNameEntered && !bLastNameEntered)                        
+        {                                                                       
+            if (!bFirstNameWildcard)                                            
+                sFullName = "@," + sFirstName + "@";                            
+            else                                                                
+            {                                                                   
+                if (sFirstName.indexOf('@') == 0)                               
+                    // user supplied own wildcard in 1st byte                   
+                    sFullName = sFirstName;                                     
+                sFullName = "@," + sFirstName; // user supplied own wildcard    
+                                              // but not in 1st byte. include   
+                                              // one for the last name.         
+            }                                                                   
+        }                                                                       
+                                                                                
+        // Last name only                                                       
+        else if (!bFirstNameEntered && bLastNameEntered)                        
+        {                                                                       
+            if (!bLastNameWildcard)                                             
+                sFullName = sLastName + "@";                                    
+            else                                                                
+            {                                                                   
+              if (LastName.substring(LastName.length-2,                         
+                                     LastName.length-1).indexOf('@') > -1)      
+                    // user supplied own wildcard in last supplied byte         
+                    sFullName = sLastName;                                      
+                else                                                            
+                    // user supplied own wildcard but not in last byte.         
+                    sFullName = sLastName + '@'; // include one for first name  
+            }                                                                   
+        }                                                                       
+        else if (!bFirstNameEntered && !bLastNameEntered)                       
+        {// no name supplied -- this is OK.                                     
+        }                                                                       
+        global_FullName  = sFullName;                                           
+        global_FirstName = sFirstName;                                          
+        global_LastName  = sLastName;                                           
+    }                                                                           
+/* 1.04 End */                                                                  
+                                                                                
+//////////////////////////////////////////////////////////////////////////
+function SubmitForm()                                                           
+{ 
+var frmThis = document.frmHoldFields;                                                                                                             
+if (bAdvisorSearch)
+  {
+  frmThis.SEARCHTYPE.value="ADVISOR";
+  sWaitPage = 'SD_AdviseeWait.html';                                  
+  }
+else // not an advisor search
+  {
+  frmThis.SEARCHTYPE.value="ANY";
+  sWaitPage = 'SD_SearchWait.html';                                   
+
+/* 1.04 Begin */                                                                
+        var E4012 = "";                                                         
+        FormatNameSearch(frmThis.LastName.value, frmThis.FirstName.value);      
+        E4012 = global_FullName;                                                
+        frmThis.E4012.value = E4012; // Set the hidden form element             
+		// Upshift the stu-id in case the user entered a lowercase value
+        frmThis.E0001.value = frmThis.E0001.value.toUpperCase();                               
+
+<$ILUCXMASK SRC=UCXCFG020 KEY=BANNER BYTES=15:1 value=Y DEP=BANNERSEARCH>          
+        // BANNER SEARCH IS ENABLED                                             
+       frmThis.EBA02.value = frmThis.E0001.value;                               
+       frmThis.EBA11.value = global_LastName;                                   
+       frmThis.EBA12.value = global_FirstName;                                  
+       frmThis.E4012.value = ""; //blank out RAD name...Banner search only.     
+       frmThis.E0001.value = ""; //blank out RAD id  ...Banner search only.     
+</$ILUCXMASK>                                                                   
+
+<$ILMASK Not DEP=BANNERSEARCH>  // search in RAD                                
+		var sBeginSet         = "ER5RS=^&"; // RS=Repeat Set
+		var sDegreeElement    = "ER513="; // on rad-goalDATA-dtl
+		var sSchoolElement    = "ER512="; // on rad-goalDATA-dtl
+		var sGoalCodeElement  = "ER515="; // goal-code  on goalDATA-dtl
+		var sGoalValueElement = "ER516="; // goal-value on goalDATA-dtl
+		var sCustomCodeElement  = "ER322="; // custom-code  on custom-dtl
+		var sCustomValueElement = "ER323="; // custom-value on custom-dtl
+		bDegreeUsedInSearchCriteria = false;
+		bSchoolUsedInSearchCriteria = false;
+		oElements = frmThis.elements;
+		oMyCriteria = frmThis.MYCRITERIA;
+		oMyCriteria.value = "&";
+		// See if Degree or School were selected 
+		for (iIndex = 0; iIndex < oElements.length; iIndex++)
+		{
+			// The 1st item is "All XXXX Codes";
+			// index 0 means nothing was chosen
+			if (oElements[iIndex].type.substring(0,6) == "select" &&
+				oElements[iIndex].selectedIndex > 0)
+			{
+				selectedIndex = oElements[iIndex].selectedIndex;
+				if (oElements[iIndex].name == "ER503")
+				{
+				  bDegreeUsedInSearchCriteria = true;
+				  sDegreeElement += Trim(oElements[iIndex][selectedIndex].value) + "&";
+				}
+				else if (oElements[iIndex].name == "ER502")
+				{
+				  bSchoolUsedInSearchCriteria = true;
+				  sSchoolElement += Trim(oElements[iIndex][selectedIndex].value) + "&";
+				}
+			}
+		} // for
+		// See if there are any non-repeatable custom data items selected
+		// These are not put into our CRITERIA list when select is picked
+		for (iIndex = 0; iIndex < oElements.length; iIndex++)
+		{
+			if (oElements[iIndex].type.substring(0,6) == "select" &&
+				oElements[iIndex].selectedIndex > 0)
+			{
+	          if (oElements[iIndex].id.indexOf("Custom") != -1) // (sWhichTable == "CustomDtl") 
+				{
+				  selectedIndex = oElements[iIndex].selectedIndex;
+		          oMyCriteria.value += sBeginSet; // the next two items are a "set"
+				  sSearchType  = Trim(oElements[iIndex].name);                 // eg: SPORT
+			      sSearchValue = Trim(oElements[iIndex][selectedIndex].value); // eg: SOCCER
+			      oMyCriteria.value += sCustomCodeElement  + sSearchType  + "&"; // eg: ER322=SPORT&
+			      if (sSearchValue != "-ALL-")
+			       oMyCriteria.value += sCustomValueElement + sSearchValue + "&"; // eg: ER323=SOCCER&
+				}
+			}
+		} // for
+		
+		// CMU Localization === Advisor search
+		if (frmThis.ADVISORS.value != "")
+		{
+			for (iIndex = 0; iIndex < oElements.length; iIndex++)
+			{
+				if (Trim(oElements[iIndex].name) == "ADVISORS")
+				{
+				  oMyCriteria.value += sBeginSet; // the next two items are a "set"
+				  sSearchType  = Trim(oElements[iIndex].name);                 // eg: ADVISOR
+				  sSearchValue = Trim(oElements[iIndex].value); 
+				  oMyCriteria.value += "ER515=ADVISOR&"; // hard code goaldata code name
+			          oMyCriteria.value += sGoalValueElement + sSearchValue + "&"; // eg: ER516=ID&
+				}
+			} // for
+		} // if
+		// CMU Localization === End of Advisor search
+		
+		// Loop through all of the items that were added to our CRITERIA list
+		// by calling the AddSearchItem method when selected
+        var oCriteria = document.frmHoldFields.CRITERIA;
+        for (i=0; i < oCriteria.length; i++)
+        {
+			sThisSearchText = oCriteria.options[i].text; // eg: MAJOR: Intro to Accounting
+			sThisSearchType = Trim(sThisSearchText.substring(0, sThisSearchText.indexOf(":"))); // eg: MAJOR
+
+			sValue = Trim(oCriteria.options[i].value); // eg: ACCT$GoaldataDtl 
+			sThisSearchTable = sValue.substring(sValue.indexOf("$") + 1, sValue.length); // eg: GoaldataDtl
+			sThisSearchValue = Trim(sValue.substring(0, sValue.indexOf("$"))); // eg: ACCT
+
+		    oMyCriteria.value += sBeginSet; // the next two items are a "set"
+			if (sThisSearchTable == "CustomDtl") 
+			  {
+			  oMyCriteria.value += sCustomCodeElement  + sThisSearchType  + "&"; // eg: ER322=SPORT&
+			  if (sThisSearchValue != "-ALL-")
+			    oMyCriteria.value += sCustomValueElement + sThisSearchValue + "&"; // eg: ER323=SOCCER&
+			  }
+            else // default is the GoaldataDtl
+			  {
+		      if (bDegreeUsedInSearchCriteria) // enforce this degree on the goaldata-dtl
+			    oMyCriteria.value += sDegreeElement;
+		      if (bSchoolUsedInSearchCriteria) // enforce this school on the goaldata-dtl
+			  	oMyCriteria.value += sSchoolElement;
+			  oMyCriteria.value += sGoalCodeElement  + sThisSearchType  + "&"; // eg: ER515=MAJOR&
+			  oMyCriteria.value += sGoalValueElement + '"' + sThisSearchValue + '"&'; // eg: ER516=ACCT&
+			  }
+        }
+
+		//alert("oMyCriteria.value = " + oMyCriteria.value);
+        // CUSTOM search item: optional picklist - may not be defined
+		// This was created before we allowed numerous "CustomDtl" search items to be used
+		if (typeof (frmThis.CUSTOM) != "undefined")
+          {
+		  oCustom = frmThis.CUSTOM;
+          if (oCustom.selectedIndex > 0)
+            // Add the custom-code to the front; ex: "HOMECAMPUS    DUBLIN"
+            frmThis.E7100.value = frmThis.CUSTOMCODE.value + oCustom.options[oCustom.selectedIndex].value;
+          else // not selected
+            frmThis.E7100.value = "";
+          }
+
+</$ILMASK>
+
+        // If seach on entire database is Not allowed                           
+<$ILUCXMASK SRC=UCXCFG020 KEY=SEARCH BYTES=21:1 value=N>                           
+        // Be sure at least one field is filled in                              
+        var bSomethingEntered = false;                                          
+        // E4012 is "Name" //                                                   
+        if (Trim (frmThis.E0001.value) != ""                                    
+            //|| Trim (frmThis.E4012.value) != ""                               
+<$ILUCXMASK NOT SRC=UCXCFG020 KEY=SEARCH BYTES=23:1 value=N> <!-- SSN Used? -->    
+            || Trim (frmThis.E0014.value) != ""                                 
+</$ILUCXMASK>                                                                   
+            || Trim (frmThis.LastName.value) != ""                              
+            || Trim (frmThis.FirstName.value) != ""                            
+			|| Trim (frmThis.ADVISORS.value) != "")  // CMU Localization === Add input box to verification routine  for Advisor search    			
+        {                                                                       
+            bSomethingEntered = true;                                           
+        }                                                                       
+        // If no id, name or ssn was entered then check to see if something was 
+        // chosen from the picklists                                            
+        if (! bSomethingEntered)                                                
+        {                                                                       
+            oElements = frmThis.elements;                                       
+            for (iIndex = 0; iIndex < oElements.length; iIndex++)               
+            {                                                                   
+                // The 1st item is "All XXXX Codes";                            
+                // index 0 means nothing was chosen                             
+                if (oElements[iIndex].type.substring(0,6) == "select"           
+                    && oElements[iIndex].selectedIndex > 0)                     
+                {                                                               
+                    bSomethingEntered = true;                                   
+                    break;                                                      
+                }                                                               
+            } // for            
+			// Check the myCriteria string also
+            if (document.frmHoldFields.CRITERIA.length > 0)
+              bSomethingEntered = true;
+            if (! bSomethingEntered)                                            
+            {                                                                   
+                alert("You must first enter search criteria before clicking Search"); 
+                return;                                                         
+            } // not somethingentered                                           
+        } // not somethingentered                                               
+</$ILUCXMASK> <<<<<< Seach on entire database not allowed                       
+}
+               
+parent.frBody.location.href = sWaitPage;                                
+document.frmHoldFields.submit();                                        
+} submitform
+///////////////////////////////////////////////////////
+// Only repeatable items such as major, minor and custom elements
+// should be added to this search list. The user may want
+// to search on MAJOR=CHEM and MAJOR=ENGL - for example.
+// Data values which appear only once in the database
+// such as degree, school, level should not be added.
+///////////////////////////////////////////////////////
+function AddSearchItem(thisSelect)
+{
+//alert ("AddSearchItem enter");
+    var oCriteria = document.frmHoldFields.CRITERIA;
+	var sWhichTable = "unknown";
+    // Code: 1.1c Added if statment to correct add blank or label bug					 
+    if (thisSelect.options[thisSelect.selectedIndex].value != "" &&
+        thisSelect.selectedIndex != 0                            &&
+        thisSelect.options[thisSelect.selectedIndex].value != "            ")
+    {
+	    // Use the Id field to tell us if this is for the custom-dtl
+	    if (thisSelect.id.indexOf("Custom") != -1)
+	      sWhichTable = "CustomDtl";
+
+        //alert (thisSelect.name + " was clicked");
+        sSearchValue = thisSelect.options[thisSelect.selectedIndex].value;
+        sSearchText = thisSelect.options[thisSelect.selectedIndex].text;
+        sSearchType = thisSelect.name;
+        AddToSearchList (sSearchValue, sSearchText, sSearchType, sWhichTable);
+    } 
+    // correct select add bug
+    //if (thisSelect.ChangeStatus)
+    //{
+    //    thisSelect.ChangeStatus = false;
+    //} 
+    thisSelect.selectedIndex = 0;
+    thisSelect.focus();
+}
+///////////////////////////////////////////////////
+function AddToSearchList (sSearchValue, sSearchText, sSearchType, sWhichTable)
+{
+//alert ("AddToSearchList enter");
+    var oCriteria = document.frmHoldFields.CRITERIA;
+	// See if this item is already in our list
+    var tmpAlreadyAdded = false;
+    for (i=0; i < oCriteria.length; i++)
+    {
+		sThisSearchText = oCriteria.options[i].text; 
+		sThisSearchType = Trim(sThisSearchText.substring(0, sThisSearchText.indexOf(":")));
+		sThisSearchText = Trim(sThisSearchText.substring(sThisSearchText.indexOf(":") + 2, sThisSearchText.length));
+		sValue = Trim(oCriteria.options[i].value); // eg: ACCT$GoaldataDtl 
+		sThisSearchValue = Trim(sValue.substring(0, sValue.indexOf("$"))); // eg: ACCT
+        if (sThisSearchValue == Trim(sSearchValue) &&
+		    sThisSearchType  == Trim(sSearchType) &&
+			sThisSearchText  == Trim(sSearchText))
+        {
+		    // Search item already in our list
+            tmpAlreadyAdded = true;
+        }
+    }
+	// If not already in our list
+    if (!tmpAlreadyAdded)
+    {
+        oCriteria.length++;
+        oCriteria.options[oCriteria.length - 1].value = sSearchValue + "$" + sWhichTable; // eg: ACCT$GoaldataDtl
+        oCriteria.options[oCriteria.length - 1].text  = sSearchType + ": " + // eg: MAJOR
+                                                        sSearchText;  // eg: Intro to Accounting
+    } 
+}
+///////////////////////////////////////////////////
+function RemoveSearchItem()
+{
+    var oCriteria = document.frmHoldFields.CRITERIA;
+    if (oCriteria.length == 0)
+    {
+        alert("The list is empty so nothing can be removed.");
+    }
+    else if (oCriteria.selectedIndex < 0)
+    {
+        alert ("You must first select a search item before clicking Remove");
+    }
+    else // Something is selected
+    {
+        var tmpSelectItemCount = 0;
+        for (var i = 0; i < oCriteria.options.length; i++)
+        {
+            if (!oCriteria.options[i].selected)
+            {
+                oCriteria.options[tmpSelectItemCount].value =
+                                            oCriteria.options[i].value
+                oCriteria.options[tmpSelectItemCount].text =
+                                            oCriteria.options[i].text
+                ++tmpSelectItemCount;
+            }
+        }
+        oCriteria.length = tmpSelectItemCount;
+        oCriteria.selectedIndex = oCriteria.length -1;
+
+    }
+} // removesearchitem
+///////////////////////////////////////////////////
+function ClearCriteriaList()
+{
+    var oCriteria = document.frmHoldFields.CRITERIA;
+    oCriteria.length = 0;
+} // clearcriterialist
+</script>                                                                       
+<noscript>JavaScript is Required!</noscript>                                    
+<body class="ComplexSearchFrame" style="margin: 5px;"                                                
+  onLoad="document.frmHoldFields.E0001.focus()"                                 
+topmargin="0" leftmargin="0" marginwidth="0" marginheight="0">                  
+<$ILINCLUDE SCRIPT=SD2GENFRM>                                                   
+  name="frmHoldFields" target="frHold">                                         
+<input type="hidden" name="SERVICE" value="SCRIPTER">                           
+<input type="hidden" name="SCRIPT" value="SD2STUGET">                           
+<input type="hidden" name="SEARCHTYPE" value="ANY">                           
+<input type="hidden" name="STUID"  value="">                                    
+<input type="hidden" name="E4012"  value="">                                    
+<input type="hidden" name="E7100"       value=""> <!-- RAD-CUSTOM-SRCH -->                                    
+<input type="hidden" name="FILTERMATCH01" value="<$IL*SRNFILTER1>">
+<input type="hidden" name="FILTERMATCH02" value="<$IL*SRNFILTER2>">
+<input type="hidden" name="FILTERMATCH03" value="<$IL*SRNFILTER3>">
+<input type="hidden" name="FILTERMATCH04" value="<$IL*SRNFILTER4>">
+<input type="hidden" name="FILTERMATCH05" value="<$IL*SRNFILTER5>">
+<input type="hidden" name="FILTERMATCH06" value="<$IL*SRNFILTER6>">
+<input type="hidden" name="FILTERMATCH07" value="<$IL*SRNFILTER7>">
+<input type="hidden" name="FILTERMATCH08" value="<$IL*SRNFILTER8>">
+<input type="hidden" name="FILTERMATCH09" value="<$IL*SRNFILTER9>">
+<input type="hidden" name="FILTERMATCH10" value="<$IL*SRNFILTER10>">
+<$ILMASK DEP=BANNERSEARCH>                                                      
+<input type="hidden" name="EBA02"  value="">                                    
+<input type="hidden" name="EBA11"  value="">                                    
+<input type="hidden" name="EBA12"  value="">                                    
+</$ILMASK>                                                                      
+<$ILMASK NOT DEP=BANNERSEARCH>                                                      
+<input type="hidden" name="MYCRITERIA"  value="">                                    
+</$ILMASK>                                                                      
+<table cellspacing="0" cellpadding="0" border="0"                               
+xxclass="ComplexSearchTop">                                                       
+    <tr>                                                                        
+        <td align="left" valign="top" class="ComplexSearchTop">
+            <img src="Images_DG2/spacer.gif" alt="" width="8" height="55">
+        </td>
+        <td align="left" valign="middle" class="ComplexSearchTop">
+            <img border="0" src="Images_DG2/up/Button_Find.gif"
+            alt="Find Button" longdesc="ADA/FindButton.txt">
+        </td>
+        <td align="center" valign="top" nowrap class="ComplexSearchTop">
+            <img src="Images_DG2/spacer.gif" alt="" width="8" height="1"><br />
+        </td>
+        <td align="center" valign="top" nowrap class="ComplexSearchTop">
+            <img src="Images_DG2/spacer.gif" alt="" width="1" height="5"><br />
+            <img src="Images_DG2/Line_WhiteOnRed.gif" alt=""><br />
+        </td>
+        <td align="center" valign="top" nowrap class="ComplexSearchTop">
+            <img src="Images_DG2/spacer.gif" alt="" width="8" height="1"><br />
+        </td>
+        <td align="left" valign="middle" width="20%" nowrap
+	    class="ComplexSearchTitle">
+                Find Students
+        </td>
+        <td align="center" valign="top" nowrap>
+            <img src="Images_DG2/spacer.gif" alt="" width="8" height="1"><br />
+        </td>
+
+        <!-- xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx -->
+        <!-- xxxxxx Student ID and Name search fields xxxxxxxxxx -->
+        <!-- xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx -->
+        <!-- ====== STUDENT ID  ====== -->                                             
+        <td nowrap align="left" valign="bottom">
+            <span class="FindTitle">
+            <label for="E0001" accesskey="s">                                   
+                <$ILUCX SRC=UCXSCR001 KEY=ID BYTES=1:20>                           
+            </label>                                                            
+            </span><br/>
+            <input class="DegInputText" type="text" size="6" maxlength="10"
+                   onFocus="this.select();" name="E0001"
+                   id="E0001" value="" style="width: 78px;">
+
+        </td>
+        <td nowrap align="left" valign="top">
+            <img src="Images_DG2/spacer.gif" alt="" width="8" height="1">
+        </td>
+        <!-- ====== FIRST NAME  ====== -->                                             
+        <td nowrap align="left" valign="bottom">
+            <span class="FindTitle">
+            <label for="FirstName" accesskey="u">First Name</label>
+            </span><br/>
+            <input class="DegInputText" type="text" size="6" maxlength="30"
+                   onFocus="this.select();" name="FirstName"
+            id="FirstName" value="" style="width: 100px;">
+
+        </td>
+        <td nowrap align="left" valign="top">
+            <img src="Images_DG2/spacer.gif" alt="" width="8" height="1">
+        </td>
+        <!-- ====== LAST NAME  ====== -->                                             
+        <td nowrap align="left" valign="bottom">
+            <span class="FindTitle">
+            <label for="LastName" accesskey="n">Last Name</label>
+            </span><br/>
+            <input class="DegInputText" type="text" size="16" maxlength="30"
+                   onFocus="this.select();" name="LastName"
+            id="LastName" value="" style="width: 150px;">
+        </td>
+        <!-- ====== SSN  ====== -->                                             
+<$ILUCXMASK NOT SRC=UCXCFG020 KEY=SEARCH BYTES=23:1 value=N> <!-- SSN Used? -->    
+        <td nowrap align="left" valign="top">                                   
+            <img src="Images_DG2/spacer.gif" alt="" width="8" height="1">       
+        </td>                                                                   
+        <td nowrap align="left" valign="bottom">                                
+            <span class="FindTitle">                                            
+            <label for="E0014" accesskey="u">                                   
+                SSN                                                             
+            </label><br/>
+            </span>                                                             
+            <input class="DegInputText" type="text" size="6" maxlength="10"     
+             onFocus="this.select();" name="E0014"    
+            id="E0014" value="" style="width: 78px;">                           
+        </td>                                                                   
+</$ILUCXMASK>                                                                   
+
+        <!-- xxxxxx end Student ID and Name search fields xxxxxxxxxx -->
+    </tr>                                                                       
+</table>                                                                        
+<table cellspacing="0" cellpadding="0" border="0" width="100%">                 
+    <tr height="1">                                                             
+        <td align="left" valign="top" >                                         
+            <img src="Images_DG2/spacer.gif" alt="" width="1" height="1"><br /> 
+        </td>                                                                   
+    </tr>                                                                       
+    <tr height="1">                                                             
+        <td align="left" valign="top" >                                         
+            <img src="Images_DG2/spacer.gif" alt="" width="1" height="1"><br /> 
+        </td>                                                                   
+    </tr>                                                                       
+</table>                                                                        
+<table cellspacing="0" cellpadding="0" border="0">                              
+                                                                                
+</table>                                                                        
+<img src="Images_DG2/spacer.gif" alt="" width="100%" height="10"><br />         
+<table cellspacing="0" cellpadding="0" border="0" width="100%">                 
+    <tr>                                                                        
+        <td valign="top">                                                       
+            <table cellspacing="0" cellpadding="0" border="0" width="100%">     
+                <!-- ============= DEGREE =============== -->                   
+<!$ILUCXMASK SRC=UCXCFG020 KEY=SEARCH BYTES=1:1 value=Y> <!-- Degree Used? -->     
+            <tr height="5">                                                     
+                <td nowrap align="left" valign="top" width="6" rowspan="2">     
+                    <img src="Images_DG2/spacer.gif" alt="" width="6"           
+                    height="38">                                                
+                </td>                                                           
+                <td nowrap align="left" valign="bottom">                        
+                    <span class="FindTitle">                                    
+                    <label for="idDegree">                                      
+                        <$ILUCX SRC=UCXSCR001 KEY=DEGREE BYTES=1:20>               
+                    </label>                                                    
+                    </span>                                                     
+                </td>                                                           
+            </tr>                                                               
+            <tr>                                                                
+                <td align="left" valign="top" nowrap>                           
+                    <select                                                     
+<$ILMASK DEP=BANNERSEARCH>                                                      
+                                   name="EBDEG"                                 
+</$ILMASK>                                                                      
+<$ILMASK Not DEP=BANNERSEARCH>  // search in RAD                                
+                                   name="ER503"                                 
+</$ILMASK>                                                                      
+                          id="idDegree"  class="StuFindSelect">                 
+                        <option value="  ">All                                  
+                            <$ILUCX SRC=UCXSCR001 KEY=DEGREE BYTES=1:20> Codes     
+<!$ILPICK SRC=UCXSTU307                                                            
+         SORTBYVALUE = 1:50                                                     
+         TEXT={<OPTION value="}                                                 
+         KEY=1:12                                                               
+         TEXT= {">}                                                             
+         VALUE = 1:50>                                                          
+                    </select>                                                   
+                </td>                                                           
+            </tr>                                                               
+</$ILUCXMASK>                                                                   
+            <!-- ============= SCHOOL =============== -->                       
+<!$ILUCXMASK SRC=UCXCFG020 KEY=SEARCH BYTES=6:1 value=Y><!-- School Used? -->      
+            <tr height="5">                                                     
+                <td nowrap align="left" valign="top" width="6" rowspan="2">     
+                    <img src="Images_DG2/spacer.gif" alt="" width="6"           
+                    height="38">                                                
+                </td>                                                           
+                <td nowrap align="left" valign="bottom">                        
+                    <span class="FindTitle">                                    
+                    <label for="idSchool">                                      
+                        <$ILUCX SRC=UCXSCR001 KEY=SCHOOL BYTES=1:20>               
+                    </label>                                                    
+                    </span>                                                     
+                </td>                                                           
+            </tr>                                                               
+            <tr>                                                                
+                <td align="left" valign="top" nowrap>                           
+<$ILMASK DEP=BANNERSEARCH> # search in BNR                                      
+                    <select name="EBSCH" id="idSchool" class="StuFindSelect">   
+</$ILMASK> # BANNERSEARCH                                                       
+<$ILMASK Not DEP=BANNERSEARCH>  # search in RAD                                 
+                    <select name="ER502" id="idSchool" class="StuFindSelect">   
+</$ILMASK>  # not BANNERSEARCH                                                  
+         <option value="  ">All <$ILUCX SRC=UCXSCR001 KEY=SCHOOL BYTES=1:20> Codes 
+<!$ILPICK SRC=UCXSTU350                                                            
+         SORTBYVALUE = 4:30                                                     
+         TEXT={<option value="}                                                 
+         KEY=1:12                                                               
+         TEXT= {">}                                                             
+         VALUE = 4:30>                                                          
+                    </select>                                                   
+                </td>                                                           
+            </tr>                                                               
+<!/$ILUCXMASK>                                                                  
+
+            <!-- ============= LEVEL =============== -->                        
+<!$ILUCXMASK SRC=UCXCFG020 KEY=SEARCH BYTES=4:1 value=Y> <!-- Level Used? -->      
+            <tr height="5">                                                     
+                <td nowrap align="left" valign="top" width="6" rowspan="2">     
+                    <img src="Images_DG2/spacer.gif" alt="" width="6"           
+                    height="38">                                                
+                </td>                                                           
+                <td nowrap align="left" valign="bottom">                        
+                    <span class="FindTitle">                                    
+                    <label for="idLevel">                                       
+<$ILUCX SRC=UCXSCR001 KEY=LEVEL BYTES=1:20>                                        
+                    </label>                                                    
+                    </span>                                                     
+                </td>                                                           
+            </tr>                                                               
+            <tr>                                                                
+                <td align="left" valign="top">                                  
+<$ILMASK DEP=BANNERSEARCH> # search in BNR                                      
+                    <select name="EBLVL" id="idLevel" class="StuFindSelect">    
+</$ILMASK> # BANNERSEARCH                                                       
+<$ILMASK Not DEP=BANNERSEARCH>  # search in RAD                                 
+                    <select name="ER505" id="idLevel" class="StuFindSelect">    
+</$ILMASK>  # not BANNERSEARCH                                                  
+         <option value="  ">All <$ILUCX SRC=UCXSCR001 KEY=LEVEL BYTES=1:20> Codes  
+<!$ILPICK SRC=UCXSTU305                                                            
+         SORTBYVALUE = 1:30
+         TEXT={<option value="}                                                 
+         KEY=1:6 
+         TEXT= {">}                                                             
+         VALUE = 1:30>
+                    </select>                                                   
+                </td>                                                           
+            </tr>                                                               
+<!/$ILUCXMASK>                                                                  
+
+            <!-- ============= CATALOG YEAR =============== -->                       
+<!$ILUCXMASK SRC=UCXCFG020 KEY=SEARCH BYTES=13:1 value=Y><!-- Show Cat Year -->      
+<$ILMASK Not DEP=BANNERSEARCH>  # search in RAD                                 
+            <tr height="5">                                                     
+                <td nowrap align="left" valign="top" width="6" rowspan="2">     
+                    <img src="Images_DG2/spacer.gif" alt="" width="6"           
+                    height="38">                                                
+                </td>                                                           
+                <td nowrap align="left" valign="bottom">                        
+                    <span class="FindTitle">                                    
+                    <label for="idCatYear">                                      
+                        <$ILUCX SRC=UCXSCR001 KEY=CATYR BYTES=1:20>               
+                    </label>                                                    
+                    </span>                                                     
+                </td>                                                           
+            </tr>                                                               
+            <tr>                                                                
+                <td align="left" valign="top" nowrap>                           
+                    <select name="ER514" id="idCatYear" class="StuFindSelect">   
+         <option value="  ">All <$ILUCX SRC=UCXSCR001 KEY=CATYR BYTES=1:20> values
+<!$ILPICK SRC=UCXSTU035                                                            
+         REVSORTBYVALUE = 1:30                                                     
+         TEXT={<option value="}                                                 
+         KEY=1:12                                                                
+         TEXT= {">}                                                             
+         VALUE = 1:30>                                                          
+                    </select>                                                   
+                </td>                                                           
+            </tr>                                                               
+</$ILMASK>  # not BANNERSEARCH                                                  
+<!/$ILUCXMASK>                                                                  
+
+            <!-- ============= DEGREE SOURCE =============== -->                       
+<$ILUCXMASK SRC=UCXCFG020 KEY=SEARCH BYTES=11:1 value=Y >
+<!-- rad_goal_dtl.rad_degree_source -->
+			<tr height="5">                                                     
+                <td nowrap align="left" valign="top" width="6" rowspan="2">     
+                    <img src="Images_DG2/spacer.gif" alt="" width="6"           
+                    height="38">                                                
+                </td>                                                           
+                <td nowrap align="left" valign="bottom">                        
+                    <span class="FindTitle">                                    
+                    <label for="DEGREESOURCE"><$ILUCX SRC=UCXSCR001 KEY=DEGREESOURCE BYTES=1:20></label>                                                    
+                    </span>                                                     
+                </td>                                                           
+            </tr>                                                               
+            <tr>                                                                
+                <td align="left" valign="top" nowrap>
+                    <select name="ER507" id="DEGREESOURCE" class="StuFindSelect">      
+                        <option value="  ">All                                  
+                            <$ILUCX SRC=UCXSCR001 KEY=DEGREESOURCE BYTES=1:20> Codes       
+						<option value="A "><$ILUCX SRC=UCXSCR001 KEY=APPLICANT BYTES=1:20>
+						<option value="S "><$ILUCX SRC=UCXSCR001 KEY=STUDENT BYTES=1:20>
+                    </select>                                                   
+                </td>                                                           
+            </tr>                                                               
+</$ILUCXMASK> <!-- rad_degree_source used -->
+
+<!--                     -->
+<!-- CUSTOM SEARCH VALUE -->
+<!--                     -->
+<$ILUCXMASK SRC=UCXCFG020 KEY=SEARCH BYTES=24:1 value=Y DEP=CUSTOMUSED>
+<!-- To use this custom search the code and value must be on the rad-custom-dtl
+     for your students. 
+                        <option value="TENNISM">Men's tennis
+                        <option value="TENNISW">Women's tennis
+-->
+            <tr height="5">                                                     
+                <td nowrap align="left" valign="top" width="6" rowspan="2">     
+                    <img src="Images_DG2/spacer.gif" alt="" width="6"           
+                    height="38">                                                
+                </td>                                                           
+                <td nowrap align="left" valign="bottom">                        
+                    <span class="FindTitle">                                    
+                    <label for="CUSTOM"><$ILUCX SRC=UCXSCR001 KEY=CUSTOM BYTES=1:20></label>                                                    
+                    </span>                                                     
+                </td>                                                           
+            </tr>                                                               
+            <tr>                                                                
+                <td align="left" valign="top" nowrap>                           
+                    <!-- The code value must be 12 bytes - use trailing spaces -->           
+                    <input type="hidden" 
+                           name="CUSTOMCODE"  
+                           value="<$ILUCX SRC=UCXCFG020 KEY=SEARCH BYTES=25:12>"> 
+                    <select name="CUSTOM" id="CUSTOM" class="StuFindSelect">      
+                        <option value="  ">All                                  
+                            <$ILUCX SRC=UCXSCR001 KEY=CUSTOM BYTES=1:20> Codes       
+<$ILPICK SRC=UCXSTU100
+         sortbyvalue = 1:30                                                     
+         text={<OPTION value="}                                                 
+         key=1:12                                                               
+         text= {">}                                                             
+         value = 1:30>                                                          
+                    </select>                                                   
+                </td>                                                           
+            </tr>                                                               
+</$ILUCXMASK> <!-- customused -->
+
+            <!-- ===========END LEFT COLUMN     ================ -->                        
+        </table>                  <!-- End Left Table -->                       
+    </td>                                                                       
+    <td valign="top">                                                           
+        <table cellspacing="0" cellpadding="0" border="0" width="100%">         
+            <!-- ===========START MIDDLE COLUMN ================ -->                        
+
+            <!-- ============= MAJOR =============== -->                        
+<$ILUCXMASK SRC=UCXCFG020 KEY=SEARCH BYTES=2:1 value=Y> <!-- Major Used? -->       
+            <tr height="5">                                                     
+                <td nowrap align="left" valign="top" width="6" rowspan="2">     
+                    <img src="Images_DG2/spacer.gif" alt="" width="8"           
+                    height="38">                                                
+                </td>                                                           
+                <td nowrap align="left" valign="bottom">                        
+                    <span class="FindTitle">                                    
+                    <label for="idMajor">                                       
+                        <$ILUCX SRC=UCXSCR001 KEY=MAJOR BYTES=1:20>                
+                    </label>                                                    
+                    </span>                                                     
+                </td>                                                           
+            </tr>                                                               
+            <tr>                                                                
+                <td align="left" valign="top" nowrap>                           
+<$ILMASK DEP=BANNERSEARCH> # search in BNR; EBMAJ and don't use use J           
+<select     name="EBMAJ"      id="idMajor" class="StuFindSelect" onChange="AddSearchItem(this);">               
+<option value="    ">All <$ILUCX SRC=UCXSCR001 KEY=MAJOR BYTES=1:20> Codes         
+<!$ILPICK SRC=UCXSTU023                                                            
+         SORTBYVALUE = 1:50                                                     
+         TEXT={<option value="}                                                 
+         KEY=1:12                                                               
+         TEXT= {">}                                                             
+         VALUE = 1:50>                                                          
+</$ILMASK> # BANNERSEARCH                                                       
+<$ILMASK Not DEP=BANNERSEARCH>  # search in RAD; E7354 and use J for mjmn-type  
+<select     name="MAJOR"      id="idMajor" class="StuFindSelect" onChange="AddSearchItem(this);">               
+<option value="    ">All <$ILUCX SRC=UCXSCR001 KEY=MAJOR BYTES=1:20> Codes         
+<!$ILPICK SRC=UCXSTU023                                                            
+         SORTBYVALUE = 1:50                                                     
+         TEXT={<option value="}                                                
+         KEY=1:12                                                               
+         TEXT= {">}                                                             
+         VALUE = 1:50>                                                          
+</$ILMASK>  # not BANNERSEARCH                                                  
+                                                                                
+<!/$ILUCXMASK> <<<< End MAJOR                                                   
+                    </select>                                                   
+                </td>                                                           
+            </tr>                                                               
+            <!-- ============= MINOR =============== -->                        
+<!$ILUCXMASK SRC=UCXCFG020 KEY=SEARCH BYTES=3:1 value=Y> <!-- Minor Used?  -->     
+            <tr height="5">                                                     
+                <td nowrap align="left" valign="top" width="6" rowspan="2">     
+                    <img src="Images_DG2/spacer.gif" alt="" width="6"           
+                    height="38">                                                
+                </td>                                                           
+                <td nowrap align="left" valign="bottom">                        
+                    <span class="FindTitle">                                    
+                    <label for="idMinor">                                       
+                        <$ILUCX SRC=UCXSCR001 KEY=MINOR BYTES=1:20>                
+                    </label>                                                    
+                    </span>                                                     
+                </td>                                                           
+            </tr>                                                               
+            <tr>                                                                
+                <td align="left" valign="top">                                  
+                                                                                
+<$ILMASK DEP=BANNERSEARCH> # search in BNR; EBMIN and don't use use N           
+               <select  name="EBMIN"   id="idMinor" class="StuFindSelect" onChange="AddSearchItem(this);">      
+<option value="    ">All <$ILUCX SRC=UCXSCR001 KEY=MINOR BYTES=1:20> Codes         
+<!$ILPICK SRC=UCXSTU024                                                            
+         SORTBYVALUE = 1:50                                                     
+         TEXT={<option value="}                                                 
+         KEY=1:12                                                               
+         TEXT= {">}                                                             
+         VALUE = 1:50>                                                          
+</$ILMASK> # BANNERSEARCH                                                       
+<$ILMASK Not DEP=BANNERSEARCH>  # search in RAD; E7354 and use J for mjmn-type  
+               <select  name="MINOR"   id="idMinor" class="StuFindSelect" onChange="AddSearchItem(this);">      
+<option value="    ">All <$ILUCX SRC=UCXSCR001 KEY=MINOR BYTES=1:20> Codes         
+<!$ILPICK SRC=UCXSTU024                                                            
+         SORTBYVALUE = 1:50                                                     
+         TEXT={<option value="}                                                
+         KEY=1:12                                                               
+         TEXT= {">}                                                             
+         VALUE = 1:50>                                                          
+</$ILMASK> # not BANNERSEARCH                                                   
+                                                                                
+<!/$ILUCXMASK>  <<< End MINOR                                                   
+                    </select>                                                                                      
+
+                </td>                                                           
+            </tr>                                                               
+
+            <!-- ============= COLLEGE =============== -->                      
+<!$ILUCXMASK SRC=UCXCFG020 KEY=SEARCH BYTES=5:1 value=Y><!-- College Used? -->     
+            <tr height="5">                                                     
+                <td nowrap align="left" valign="top" width="6" rowspan="2">     
+                    <img src="Images_DG2/spacer.gif" alt="" width="6"           
+                    height="38">                                                
+                </td>                                                           
+                <td nowrap align="left" valign="bottom">                        
+                    <span class="FindTitle">                                    
+                    <label for="idCollege">                                     
+                        <$ILUCX SRC=UCXSCR001 KEY=COLLEGE BYTES=1:20>              
+                    </label>                                                    
+                    </span>                                                     
+                </td>                                                           
+            </tr>                                                               
+            <tr>                                                                
+                <td align="left" valign="top">                                  
+<$ILMASK DEP=BANNERSEARCH> # search in BNR                                      
+                    <select name="EBCLG" id="idCollege" class="StuFindSelect" onChange="AddSearchItem(this);">  
+</$ILMASK> # BANNERSEARCH                                                       
+<$ILMASK Not DEP=BANNERSEARCH>  # search in RAD                                 
+                    <select name="COLLEGE" id="idCollege" class="StuFindSelect" onChange="AddSearchItem(this);">  
+</$ILMASK>  # not BANNERSEARCH                                                  
+        <option value="  ">All <$ILUCX SRC=UCXSCR001 KEY=COLLEGE BYTES=1:20> Codes 
+<$ILPICK SRC=UCXSTU560                                                             
+         SORTBYVALUE = 1:30                                                     
+         TEXT={<option value="}                                                 
+         KEY=1:6                                                                
+         TEXT= {">}                                                             
+         VALUE = 1:30>                                                          
+                    </select>                                                   
+                </td>                                                           
+            </tr>                                                               
+<!/$ILUCXMASK>                                                                  
+            <!-- ============= SPEC =============== -->                         
+<$ILMASK Not DEP=BANNERSEARCH>  # search in RAD; SPEC not in Banner             
+<!$ILUCXMASK SRC=UCXCFG020 KEY=SEARCH BYTES=7:1 value=Y><!-- Spec Used? -->        
+            <tr height="5">                                                     
+                <td nowrap align="left" valign="top" width="6" rowspan="2">     
+                    <img src="Images_DG2/spacer.gif" alt="" width="6"           
+                    height="38">                                                
+                </td>                                                           
+                <td nowrap align="left" valign="bottom">                        
+                    <span class="FindTitle">                                    
+                    <label for="SPEC">                                         
+                        <$ILUCX SRC=UCXSCR001 KEY=SPEC BYTES=1:20>                 
+                    </label>                                                    
+                    </span>                                                     
+                </td>                                                           
+            </tr>                                                               
+            <tr>                                                                
+                <td align="left" valign="top" nowrap>                           
+                    <select name="SPEC" id="SPEC" class="StuFindSelect" onChange="AddSearchItem(this);">      
+                        <option value="  ">All                                  
+                            <$ILUCX SRC=UCXSCR001 KEY=SPEC BYTES=1:20> Codes       
+<!$ILPICK SRC=UCXSTU323                                                            
+         SORTBYVALUE = 1:30                                                     
+         TEXT={<option value="}                                                 
+         KEY=1:12                                                               
+         TEXT= {">}                                                             
+         VALUE = 1:30>                                                          
+                    </select>                                                   
+                </td>                                                           
+            </tr>                                                               
+<!/$ILUCXMASK> <!-- spec used -->                                               
+</$ILMASK>  # not BANNERSEARCH                                                  
+            <!-- ============= CONC =============== -->                         
+<!$ILUCXMASK SRC=UCXCFG020 KEY=SEARCH BYTES=8:1 value=Y><!-- Conc Used? -->        
+            <tr height="5">                                                     
+                <td nowrap align="left" valign="top" width="6" rowspan="2">     
+                    <img src="Images_DG2/spacer.gif" alt="" width="6"           
+                    height="38">                                                
+                </td>                                                           
+                <td nowrap align="left" valign="bottom">                        
+                    <span class="FindTitle">                                    
+                    <label for="idConc">                                        
+                        <$ILUCX SRC=UCXSCR001 KEY=CONC BYTES=1:20>                 
+                    </label>                                                    
+                    </span>                                                     
+                </td>                                                           
+            </tr>                                                               
+            <tr>                                                                
+                <td align="left" valign="top" nowrap>                           
+<$ILMASK DEP=BANNERSEARCH> # search in BNR                                      
+                    <select name="EBCON" id="idConc" class="StuFindSelect" onChange="AddSearchItem(this);">     
+</$ILMASK> # BANNERSEARCH                                                       
+<$ILMASK Not DEP=BANNERSEARCH>  # search in RAD                                 
+                    <select name="CONC" id="idConc" class="StuFindSelect" onChange="AddSearchItem(this);">     
+</$ILMASK>  # not BANNERSEARCH                                                  
+         <option value="  ">All <$ILUCX SRC=UCXSCR001 KEY=CONC BYTES=1:20> Codes   
+<!$ILPICK SRC=UCXSTU563                                                            
+         sortbyvalue = 1:50                                                     
+         text={<option value="}                                                 
+         key=1:12                                                               
+         text= {">}                                                             
+         value = 1:50>                                                          
+                    </select>                                                   
+                </td>                                                           
+            </tr>                                                               
+<!/$ILUCXMASK>                                                                  
+            <!-- ============= LIBL =============== -->                       
+<$ILMASK Not DEP=BANNERSEARCH>  # search in RAD; LIBL not in Banner           
+<!$ILUCXMASK SRC=UCXCFG020 KEY=SEARCH BYTES=10:1 value=Y><!-- LibLrn Used? -->     
+            <tr height="5">                                                     
+                <td nowrap align="left" valign="top" width="6" rowspan="2">     
+                    <img src="Images_DG2/spacer.gif" alt="" width="6"           
+                    height="38">                                                
+                </td>                                                           
+                <td nowrap align="left" valign="bottom">                        
+                    <span class="FindTitle">                                    
+                    <label for="LIBL">                                         
+                        <$ILUCX SRC=UCXSCR001 KEY=LIBL BYTES=1:20>                 
+                    </label>                                                    
+                    </span>                                                     
+                </td>                                                           
+            </tr>                                                               
+            <tr>                                                                
+                <td align="left" valign="top" nowrap>                           
+                    <select name="LIBL" id="LIBL" class="StuFindSelect" onChange="AddSearchItem(this);">      
+                        <option value="  ">All                                  
+                            <$ILUCX SRC=UCXSCR001 KEY=LIBL BYTES=1:20> Codes       
+<!$ILPICK SRC=UCXSTU324                                                            
+         sortbyvalue = 1:30                                                     
+         text={<OPTION value="}                                                 
+         key=1:12                                                               
+         text= {">}                                                             
+         value = 1:30>                                                          
+                    </select>                                                   
+                </td>                                                           
+            </tr>                                                               
+<!/$ILUCXMASK>                                                                  
+
+            <!-- ============= PROGRAM =============== -->                       
+<!$ILUCXMASK SRC=UCXCFG020 KEY=SEARCH BYTES=12:1 value=Y><!-- Show Program -->      
+            <tr height="5">                                                     
+                <td nowrap align="left" valign="top" width="6" rowspan="2">     
+                    <img src="Images_DG2/spacer.gif" alt="" width="6"           
+                    height="38">                                                
+                </td>                                                           
+                <td nowrap align="left" valign="bottom">                        
+                    <span class="FindTitle">                                    
+                    <label for="idProgram">                                      
+                        <$ILUCX SRC=UCXSCR001 KEY=PROGRAM BYTES=1:20>               
+                    </label>                                                    
+                    </span>                                                     
+                </td>                                                           
+            </tr>                                                               
+            <tr>                                                                
+                <td align="left" valign="top" nowrap>                           
+<$ILMASK DEP=BANNERSEARCH> # search in BNR                                      
+                    <select name="EBB10" id="idStatus" class="StuFindSelect">   
+</$ILMASK> # BANNERSEARCH                                                       
+<$ILMASK Not DEP=BANNERSEARCH>  # search in RAD                                 
+                    <select name="PROGRAM" id="idProgram" class="StuFindSelect" onChange="AddSearchItem(this);">   
+</$ILMASK>  # not BANNERSEARCH                                                  
+         <option value="  ">All <$ILUCX SRC=UCXSCR001 KEY=PROGRAM BYTES=1:20> Codes 
+<!$ILPICK SRC=UCXSTU316                                                            
+         SORTBYVALUE = 1:50                                                     
+         TEXT={<option value="}                                                 
+         KEY=1:12                                                                
+         TEXT= {">}                                                             
+         VALUE = 1:50>                                                          
+                    </select>                                                   
+                </td>                                                           
+            </tr>                                                               
+<!/$ILUCXMASK> // end PROGRAM
+
+
+
+            <!-- ============= STATUS =============== -->                       
+<!$ILUCXMASK SRC=UCXCFG020 KEY=SEARCH BYTES=9:1 value=Y><!-- Status Used? -->      
+            <tr height="5">                                                     
+                <td nowrap align="left" valign="top" width="6" rowspan="2">     
+                    <img src="Images_DG2/spacer.gif" alt="" width="6"           
+                    height="38">                                                
+                </td>                                                           
+                <td nowrap align="left" valign="bottom">                        
+                    <span class="FindTitle">                                    
+                    <label for="idStatus">                                      
+                        <$ILUCX SRC=UCXSCR001 KEY=STATUS BYTES=1:20>               
+                    </label>                                                    
+                    </span>                                                     
+                </td>                                                           
+            </tr>                                                               
+            <tr>                                                                
+                <td align="left" valign="top" nowrap>                           
+<$ILMASK DEP=BANNERSEARCH> # search in BNR                                      
+                    <select name="EBSTS" id="idStatus" class="StuFindSelect">   
+</$ILMASK> # BANNERSEARCH                                                       
+<$ILMASK Not DEP=BANNERSEARCH>  # search in RAD                                 
+                    <select name="STUSTATUS" id="idStatus" class="StuFindSelect" onChange="AddSearchItem(this);">   
+</$ILMASK>  # not BANNERSEARCH                                                  
+         <option value="  ">All <$ILUCX SRC=UCXSCR001 KEY=STATUS BYTES=1:20> Codes 
+<!$ILPICK SRC=UCXSTU306                                                            
+         SORTBYVALUE = 1:50                                                     
+         TEXT={<option value="}                                                 
+         KEY=1:12
+         TEXT= {">}                                                             
+         VALUE = 1:50>                                                          
+                    </select>                                                   
+                </td>                                                           
+            </tr>                                                               
+<!/$ILUCXMASK> // end STATUS
+
+
+</$ILMASK>  # not BANNERSEARCH                                                  
+        </table>                  <!-- End Middle Table -->                       
+    </td>    
+
+<!-- Allow custom search values to be included on the search window -->
+<$ILINCLUDE SCRIPT=SEARCHCUSTOM>
+                                                                       
+    </tr>                                                                       
+</table>                                                                        
+
+<!-- Create a box to hold the repeatable search items such as major, minor
+     and also any custom search item -->
+<table cellspacing="0" cellpadding="0" border="0" width="300" align="left">
+	<tr>
+        <td colspan="2" nowrap align="left" valign="top">                                   
+            <img src="Images_DG2/spacer.gif" alt="" width="8" height="1">       
+        </td>                                                                   
+       <td align="left">
+           <label for="CRITERIA">Chosen Repeatable Search Criteria</label>
+       </td>
+    </tr>
+    <tr>
+        <td align="left" valign="bottom" nowrap width="100%">                      
+            <img src="Images_DG2/spacer.gif" alt="" width="10" height="5"><br />
+                                                                                
+            <input type="button" value="Search" onClick="SubmitForm();blur();"> 
+        <!--Added blur to above line 1.1d -->                                   
+<script language="JavaScript">                                                  
+function tmpCheckValue()                                                        
+{                                                                               
+    var tmpCheckThis;                                                           
+    tmpCheckThis = prompt("Check This:","");                                    
+    if (tmpCheckThis != "close")                                                
+    {                                                                           
+        alert(tmpCheckThis + ": " + eval(tmpCheckThis));                        
+        tmpCheckValue();                                                        
+    }                                                                           
+}                                                                               
+</script>                                                                       
+<script language="JavaScript">                                                  
+top.SearchSubmitForm = SubmitForm;                                              
+objKeyEventHandler.fAddKeyPressAction("ctrl+shift+s",function(){tmpCheckValue();
+                                                                                
+});                                                                             
+</script>                                                                       
+<noscript>JavaScript is Required!</noscript>                                    
+            <img src="Images_DG2/spacer.gif" alt="" width="5">                  
+            <input type="reset" value="Clear" onClick="ClearCriteriaList();">
+        </td>                                                                   
+
+        <td nowrap align="left" valign="bottom">                                   
+            <img src="Images_DG2/spacer.gif" alt="" width="100" height="1">       
+        </td>                                                                   
+       <td align="center">
+           <select size="4" name="CRITERIA" id="CRITERIA"
+           class="WhatIfBlocks" multiple
+           >
+           </select>
+       </td>
+	   <td align="left" align="top">
+           <input type="button" name="REMOVE" value="Remove"
+                  onClick="RemoveSearchItem()">
+       </td>
+    </tr>
+</table>
+
+</form>                                                                         
+</body>                                                                         
+<$ILINCLUDE SCRIPT=SD2INCFOT>                                                   

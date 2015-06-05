@@ -1,0 +1,271 @@
+<$ILENVMASK DWDEBUG=1>
+<!-- 
+ Copyright 1995-2012 Ellucian Company L.P. and its affiliates. 
+ $Id: //Tuxedo/RELEASE/Product/server/shpscripts/SEARCHCUSTOM#2 $ -->
+</$ILENVMASK>
+<!-- Add your own search options here searching on the rad-custom-dtl.
+     This shpscript should be copied from app/shpscripts to local/shpscripts
+     and then modified as needed.
+	 This shpscript is included in (pulled into) stu form automatically.
+	 Below are two examples you can use as templates.
+	 The "name" field on the SELECT object must be the rad_custom_code
+	 on the rad_custom_dtl.
+	 If you don't want any custom search items you can delete the contents of this
+	 file - but don't delete the file.
+  -->
+
+    <td valign="top"> <!-- Creates 3rd column of select boxes on search page -->
+        <table cellspacing="0" cellpadding="0" border="0" width="100%">         
+
+            <!--  Notes:
+                  You can this option to find students with this 
+                  custom-code but with any value:
+                   <option value="-ALL-   ">Has this code - any value
+			 
+			      You can use this onChange event to add the selected
+				  search item to the big CRITERIA box. This should be used
+				  when you want to allow users to select this item more than
+				  once - such as searching on students who have two attributes -
+				  which our ATTRIBUTE example below does show.
+		           onChange="AddSearchItem(this);"
+
+                  If your search item is searching on the rad_custom_dtl
+				  then your <select> "id" field must have "Custom" in the value.
+				    Example: id="idCustom4"
+			-->
+
+			
+			<!--  CMU Localizataion === Added Advisor search  -->
+            <tr height="5">
+                <td nowrap align="left" valign="top" width="6" rowspan="2">
+                    <img src="Images_DG2/spacer.gif" alt="" width="6"
+                    height="38">
+                </td>
+                <td nowrap align="left" valign="bottom">
+                    <span class="FindTitle">
+                    <label for="idCustom8">Advisor ID</label>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td align="left" valign="top" nowrap>
+			<input class="DegInputText" type="text" size="6" maxlength="30"
+			onFocus="this.select();" name="ADVISORS"
+			id="idCustom8" value="" style="width: 250px;">
+                </td>
+            </tr>
+			<!--  End of CMU Localizataion === Added Advisor search  -->
+			
+            <!-- ============= CUSTOM Example 1 start =============== -->
+			
+			<!--  CMU Localizataion === Removed Sport search 
+            <tr height="5">
+                <td nowrap align="left" valign="top" width="6" rowspan="2">
+                    <img src="Images_DG2/spacer.gif" alt="" width="6"
+                    height="38">
+                </td>
+                <td nowrap align="left" valign="bottom">
+                    <span class="FindTitle">
+                    <label for="idCustom1">Sport</label>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td align="left" valign="top" nowrap>
+                    <select name="SPORT" 
+                            id="idCustom1" 
+						    xxonChange="AddSearchItem(this);"
+                            class="StuFindSelect">
+                       <option value="  ">No Sport selected
+                       <option value="-ALL-   ">Is in some sport
+                       <option value="SOCCER  ">Men's soccer
+                       <option value="SOCCERW ">Women's soccer
+                       <option value="TENNIS  ">Tennis
+                       <option value="FOOTBALL">Football
+                       <option value="SOFTBALL">Softball
+                    </select>
+                </td>
+            </tr>
+			-->
+			<!-- CMU Localization === End of Removed Sport search -->
+            <!-- ============= CUSTOM Example 1 end =============== -->
+
+			<!-- CMU Localization === Add Non Course Requirement search -->
+            <tr height="5">
+                <td nowrap align="left" valign="top" width="6" rowspan="2">
+                    <img src="Images_DG2/spacer.gif" alt="" width="6"
+                    height="38">
+                </td>
+                <td nowrap align="left" valign="bottom">
+                    <span class="FindTitle">
+                    <label for="idCustom1">Noncourse Requirement</label>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td align="left" valign="top" nowrap>
+                    <select name="???" 
+                            id="idCustom1" 
+						    xxonChange="AddSearchItem(this);"
+                            class="StuFindSelect">
+                       <option value="  ">Any Non Course Requirement
+					   <option value="MECE">MAED Comprehensive Exam
+					   <option value="MBRP">MBA Oral Research Presentation
+					   <option value="MBRR">MBA Research Report
+					   <option value="MBCE">MBA Written Comprehensive Exam   
+					   <option value="EDP2">Passed PRAXIS II Exam
+					   <option value="EDPL">Passed PLACE Exam
+                    </select>
+                </td>
+            </tr>
+			<!-- CMU Localizataion === End of Add Non Course Requirement search -->
+			
+            <!-- ============= CUSTOM Example 2 start =============== -->
+            <tr height="5">
+                <td nowrap align="left" valign="top" width="6" rowspan="2">
+                    <img src="Images_DG2/spacer.gif" alt="" width="6"
+                    height="38">
+                </td>
+                <td nowrap align="left" valign="bottom">
+                    <span class="FindTitle">
+                    <label for="idCustom2">Academic Standing</label>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td align="left" valign="top" nowrap>
+                    <select name="ACADSTANDSRC" 
+                            id="idCustom2" 
+						    xxonChange="AddSearchItem(this);"
+                            class="StuFindSelect">
+					   <!-- CMU Localization === Changed option values to CMU option values -->
+                       <option value="    ">All Academic Standings
+                       <option value="00">Good Academic Standing
+					   <option value="05">Non-Degree Seeking Ineligible
+					   <option value="01">Probation
+                       <option value="02">Suspension
+                    </select>
+                </td>
+            </tr>
+            <!-- ============= CUSTOM Example 2 end =============== -->
+
+            <!-- ============= CUSTOM Example 3 start =============== -->
+            <tr height="5">
+                <td nowrap align="left" valign="top" width="6" rowspan="2">
+                    <img src="Images_DG2/spacer.gif" alt="" width="6"
+                    height="38">
+                </td>
+                <td nowrap align="left" valign="bottom">
+                    <span class="FindTitle">
+                    <label for="idCustom3">Student Attribute</label>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td align="left" valign="top" nowrap>
+                    <select name="ATTRIBUTE" 
+                            id="idCustom3" 
+						    onChange="AddSearchItem(this);"
+                            class="StuFindSelect">
+					   <!-- CMU Localization === Changed option values to CMU option values -->
+                       <option value="    ">No Attribute selected
+                       <option value="AASD">AASD
+                       <option value="BACC">BACC
+                       <option value="CORE">CORE
+					   
+                    </select>
+                </td>
+            </tr>
+            <!-- ============= CUSTOM Example 3 end =============== -->
+			
+			<!-- CMU Localization === Add Grad Application Status search -->
+            <tr height="5">
+                <td nowrap align="left" valign="top" width="6" rowspan="2">
+                    <img src="Images_DG2/spacer.gif" alt="" width="6"
+                    height="38">
+                </td>
+                <td nowrap align="left" valign="bottom">
+                    <span class="FindTitle">
+                    <label for="idCustom1">Graduation Application Status</label>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td align="left" valign="top" nowrap>
+                    <select name="GRADAPPSRCH" 
+                            id="idCustom1" 
+						    xxonChange="AddSearchItem(this);"
+                            class="StuFindSelect">
+                       <option value="  ">Any Graduation Application Status
+					   <option value="UA">Degree Awarded
+                       <option value="PE">Petitioned
+					   <option value="PD">Petition Denied
+                       <option value="PR">Petition Ready to Review
+                       <option value="SI">Sought Intent Received
+                       <option value="WO">Walk Only
+                    </select>
+                </td>
+            </tr>
+			<!-- CMU Localizataion === End of Add Grad Status search -->
+			
+			<!--  CMU Localizataion === Added Cohort search -->
+            <tr height="5">
+                <td nowrap align="left" valign="top" width="6" rowspan="2">
+                    <img src="Images_DG2/spacer.gif" alt="" width="6"
+                    height="38">
+                </td>
+                <td nowrap align="left" valign="bottom">
+                    <span class="FindTitle">
+                    <label for="idCustom1">Cohort</label>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td align="left" valign="top" nowrap>
+                    <select name="COHORT" 
+                            id="idCustom1" 
+						    xxonChange="AddSearchItem(this);"
+                            class="StuFindSelect">
+                       <option value="  ">Any Cohort
+                       <option value="ACAD201104">Academic Honors 201104 Cohort
+                       <option value="RNBSN1">RN to BSN Accelarated 1
+                       <option value="RNBSN2">RN to BSN Accelarated 2
+                       <option value="TRIO201004">TRIO 201004 Cohort
+                       <option value="TRIO201101">TRIO 201101 Cohort- Sum Bridge
+                       <option value="TRIO201102">TRIO 201102 Cohort
+                       <option value="TRIO201104">TRIO 201104 Cohort
+                       <option value="TRIO201201">TRIO 201201 Cohort- Sum Bridge
+                       <option value="TRIO201202">TRIO 201202 Cohort
+                       <option value="TRIO201204">TRIO 201204 Cohort
+                    </select>
+                </td>
+            </tr>
+			<!--  CMU Localizataion === End of Added Cohort search -->
+			
+			<!--  CMU Localizataion === Added Veteran search -->
+            <tr height="5">
+                <td nowrap align="left" valign="top" width="6" rowspan="2">
+                    <img src="Images_DG2/spacer.gif" alt="" width="6"
+                    height="38">
+                </td>
+                <td nowrap align="left" valign="bottom">
+                    <span class="FindTitle">
+                    <label for="idCustom1">Veteran Status</label>
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <td align="left" valign="top" nowrap>
+                    <select name="VETSTS" 
+                            id="idCustom1" 
+						    xxonChange="AddSearchItem(this);"
+                            class="StuFindSelect">
+                       <option value="  ">Any Veteran Status
+                       <option value="Veteran">Veteran
+                    </select>
+                </td>
+            </tr>
+			<!--  CMU Localizataion === End of Added Veteran search -->
+			
+        </table>                  <!-- End Custom Table -->                       
+    </td>    

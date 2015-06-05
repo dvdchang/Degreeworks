@@ -1,0 +1,251 @@
+<$ILENVMASK DWDEBUG=1>
+<!-- 
+ Copyright 1995-2012 Ellucian Company L.P. and its affiliates. 
+ $Id: //Tuxedo/RELEASE/Product/server/shpscripts/SD2NTEADD#4 $ -->
+</$ILENVMASK>
+<html lang="en">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1" />
+    <meta http-equiv="Content-Language" content="en" />
+    <!-- <script type="text/javascript" src="DGW_objKeyEventHandler.js"></script> -->
+    <script type="text/javascript" src="BrowserSniffer.js"></script>
+    <noscript>JavaScript is Required!</noscript>
+    <title>Ellucian Degree Works - <$ILENV-DWWEBID> Add Note</title>                                                                        
+    <link rel="stylesheet" href="DGW_Style.css" type="text/css">                
+    <style type="text/css">                                                     
+        body {margin: 15;}                                                      
+    </style>                                                                    
+<script>                                                   
+bShowPicklist = false;                                                          
+<$ILUCXMASK SRC=UCXCFG020 KEY=WEB BYTES=14:1 value=Y>                              
+bShowPicklist = true;                                                           
+</$ILUCXMASK>                                                                   
+////////////////////////////                                                    
+function LoadText()                                                             
+{                                                                               
+   var frm = document.frmNotesForm;                                             
+   iIndex = frm.D71TEXT.selectedIndex;                                          
+   sText = frm.D71TEXT[iIndex].text;                                            
+   // Append this note text to whatever is already in the edit box              
+   // as long as other text have already been added.                            
+   if (frm.NOTETEXT.value.length > 0)                                           
+      frm.NOTETEXT.value = frm.NOTETEXT.value + " " + sText;                    
+   else                                                                         
+      frm.NOTETEXT.value = sText;                                               
+}                                                                               
+////////////////////////////                                                    
+function RemoveFocus()                                                          
+{                                                                               
+   if (bShowPicklist)                                                           
+      document.frmNotesForm.D71TEXT.focus()                                     
+
+} 
+////////////////////////////                                                    
+function ChangeLabel()                                                          
+{                                                                               
+  // This gets triggered by the timer; update the text when the timer goes off
+  labelElement = document.getElementById("lblNoteText");
+  labelElement.innerHTML = "Add New Note";
+}
+
+// ****************** ADDNOTE ****************** 
+<$ILCGIMASK ACTION=ADDNOTE>  >>>>>> We are adding a note now                    
+<$ILMASK NOT SERVICE=SDSTUME>                                           
+<$ILSERVER SERVER=DAP09 SERVICE=SDNTEADD MODE=MERLIN>                           
+</$ILMASK>                                                                      
+
+<$ILMASK SERVICE=SDSTUME DEP=SDSTUME>                                           
+<$ILSERVER SERVER=DAP09 SERVICE=SDNTEADD MODE=MERLIN                            
+NVP=STUID=<$ILBOXID>                                                            
+>                                                                               
+</$ILMASK>                                                                      
+                                                                                
+<$ILMGIMASK NOT STATUS=OK>  >>>>>> Note NOT added                               
+    alert('Your note was not added. Status = <$ILMGI-STATUS> ' +     
+          'Error  = <$ILMGI-ERROR>; <$ILMGI-ERRMSG1> <$ILMGI-ERRMSG2>'); 
+</$ILMGIMASK>  <<< END bad status                                               
+</$ILCGIMASK>  <<<<<<<< end We are adding a note now                            
+// ****************** end ADDNOTE ****************** 
+
+</script>                                                                       
+</head>                                                                         
+<body class="NotesBackground">                                                  
+<$ILINCLUDE SCRIPT=SD2GENFRM>                                                   
+ name=frmNotesForm>                                                             
+<input type="hidden" name="ACTION" value="ADDNOTE">                             
+<$ILCGIMASK ADDNOTEPOPUP=Y>                                                   
+<input type="hidden" name="SCRIPT" value="SD2NTEADD"> <!-- Get the add-note page again - this page -->                          
+<input type="hidden" name="NOTEMODE" value="A&ADDNOTEPOPUP=Y">
+</$ILCGIMASK>                                                   
+<$ILCGIMASK Not ADDNOTEPOPUP=Y>                                                   
+<input type="hidden" name="SCRIPT" value="SD2NTESAV">                           
+<input type="hidden" name="NOTEMODE" value="A">                                 
+</$ILCGIMASK>                                                   
+
+<!-- Header Table =================================== -->                       
+<table border="0" cellspacing="0" cellpadding="0" width="100%"                  
+class="AddNotesTitle">                                                          
+    <tr>                                                                        
+        <td class="AuditHeadBorderDark">                                        
+            <img src="Images_DG2/spacer.gif" alt="" height="1"><br />           
+        </td>                                                                   
+    </tr>                                                                       
+    <tr>                                                                        
+        <td class="AuditHeadBorderLight">                                       
+            <img src="Images_DG2/spacer.gif" alt="" height="1"><br />           
+        </td>                                                                   
+    </tr>                                                                       
+    <!-- ADD NEW NOTE -->                                                       
+    <tr>                                                                        
+        <td align="left" valign="top">                                          
+            <!-- TitleSection Table -->                                         
+            <table border="0" cellspacing="0" cellpadding="4" width="100%">     
+                <tr>                                                            
+                    <td align="left" valign="middle">                           
+                        <span class="AddNotesTitle">                            
+                            <label for="NOTETEXT" id="lblNoteText">
+<$ILCGIMASK ACTION=ADDNOTE>  >>>>>> We are adding a note now                    
+<$ILMGIMASK STATUS=OK>  >>>>>> Note added successfully                          
+    ***** Your note was added successfully *****
+<script>                                                                       
+    setTimeout("ChangeLabel()",3000);
+</script>                                                                       
+</$ILMGIMASK>  <<< END status=ok                                                
+</$ILCGIMASK>
+<$ILCGIMASK Not ACTION=ADDNOTE>  >>>>>> First time page is appearring
+    Add New Note
+</$ILCGIMASK>
+                            </label>          
+                        </span>                                                 
+                    </td>                                                       
+                </tr>                                                           
+            </table>                                                            
+        </td>                                                                   
+    </tr>                                                                       
+    <tr>                                                                        
+        <td class="AuditHeadBorderLight">                                       
+            <img src="Images_DG2/spacer.gif" alt="" height="1"><br />           
+        </td>                                                                   
+    </tr>                                                                       
+    <tr>                                                                        
+        <td class="AuditHeadBorderDark">                                        
+            <img src="Images_DG2/spacer.gif" alt="" height="1"><br />           
+        </td>                                                                   
+    </tr>                                                                       
+</table>                                                                        
+<!-- Header Table =================================== -->                       
+<table border="0" cellspacing="0" cellpadding="0" width="100%"                  
+class="AddNotesSubTitle">                                                       
+    <!-- INSTRUCTIONS -->                                                       
+    <tr>                                                                        
+        <td align="left" valign="top">                                          
+            <table border="0" cellspacing="0" cellpadding="4" width="50%">     
+                <tr>                                                            
+                    <td align="left" valign="middle">                           
+                        <span class="AddNotesSubTitle">                         
+                        Enter your advising note and click the Save Note
+                        button. All notes are visible to students and other
+                        authorized staff and faculty. Once you save your note,
+                        you cannot modify or delete the note. Contact the
+                        Registrar's Office if you have concerns about a note.
+                        </span>                                                 
+                    </td>                                                       
+                </tr>                                                           
+            </table>                                                            
+        </td>                                                                   
+    </tr>                                                                       
+</table>                                                                        
+<!-- CHECK BOXES -->                                                            
+<!-- Header Table =================================== -->                       
+<table border="0" cellspacing="0" cellpadding="0" width="100%"                  
+class="AddNotesOptions">                                                        
+    <!-- INSTRUCTIONS -->                                                       
+    <tr>                                                                        
+        <td align="left" valign="top">                                          
+            <table border="0" cellspacing="0" cellpadding="0" width="100%">     
+<$ILUCXMASK SRC=UCXCFG020 KEY=WEB BYTES=4:1 value=Y> <!-- show checkbox -->                          
+                <tr>                                                            
+                    <td width="2" rowspan="10"></td>                            
+                    <td class="AddNotesOptions">                                
+                        <input type="checkbox" name="INTERNAL" 
+			class="myCheckbox"                  
+                        id="INTERNAL" value="Y">                                
+                        <label for="INTERNAL">                                  
+                            Not available to student                            
+                        </label>                                                
+                    </td>                                                       
+                </tr>                                                           
+</$ILUCXMASK>                                                                   
+<$ILUCXMASK SRC=UCXCFG020 KEY=WEB BYTES=4:1 value=N>  <!-- hide checkbox -->
+                <tr>                                                            
+                    <td width="2" rowspan="10"></td>                            
+                    <td class="AddNotesOptions">                                
+                                        <br />                                  
+<!-- "Not available to student" checkbox set to N in UCXCFG020WEB Bytes 4:1 -->    
+                    </td>                                                       
+                </tr>                                                           
+</$ILUCXMASK>                                                                   
+<$ILUCXMASK SRC=UCXCFG020 KEY=WEB BYTES=14:1 value=Y>                              
+            <tr>                                                                
+                    <td colspan="3"  class="xxAddNotesText">                    
+                      <!-- Predefined comments -->                              
+                      <select name="D71TEXT" id="D71TEXT" onChange="LoadText()"
+		       class="DegInputSelect">
+<$ILPICK SRC=UCXCFG071 text={<option>} value = 1:140></option>                     
+                      </select>                                                 
+                    </td>                                                       
+            </tr>                                                               
+</$ILUCXMASK>                                                                   
+                <tr>                                                            
+                    <td colspan="3">                                            
+<$ILCGIMASK BROWSER=NAV4>                                                       
+                        <textarea name="NOTETEXT" id="NOTETEXT" rows="10"       
+						<$ILMASK NOT SERVICE=SDNTECHG>                                            
+                                                                                
+                         onFocus="RemoveFocus()"                                
+						</$ILMASK>                                                                
+                         cols="40" wrap class="AddNotesText"></textarea>        
+</$ILCGIMASK>                                                                   
+<$ILCGIMASK NOT BROWSER=NAV4>                                                   
+<!-- this onFocus will make it so the user cannot type their own text -->       
+                        <textarea name="NOTETEXT" id="NOTETEXT" rows="10"       
+						<$ILMASK NOT SERVICE=SDNTECHG>                                            
+                                                                                
+                         onFocus="RemoveFocus()"                                
+						</$ILMASK>                                                                
+                         cols="60" wrap  class="AddNotesText"></textarea>       
+</$ILCGIMASK>                                                                   
+                    </td>                                                       
+                </tr>                                                           
+                <tr><!-- SPACE -->                                              
+                    <td>                                                        
+                        <br />                                                  
+                    </td>                                                       
+                </tr>                                                           
+                <tr>                                                            
+                    <td colspan="2" align="left" >                              
+                        <input type="button" name="DOIT" value="Save Note"      
+<$ILCGIMASK ADDNOTEPOPUP=Y>                                                   
+                               onClick="window.opener.top.frControl.SaveNote('', document.frmNotesForm.NOTETEXT.value, 
+                                                                             document.frmNotesForm.INTERNAL,
+                                                                             document.frmNotesForm, window.name)">                 
+</$ILCGIMASK>                                                   
+<$ILCGIMASK Not ADDNOTEPOPUP=Y>                                                   
+                               onClick="top.frControl.SaveNote('', document.frmNotesForm.NOTETEXT.value, document.frmNotesForm.INTERNAL)">                 
+</$ILCGIMASK>                                                   
+
+                        <input type="reset" name="CLEARIT" value="Clear">       
+                   </td>                                                        
+                </tr>                                                           
+                <tr><!-- SPACE -->                                              
+                    <td>                                                        
+                        <br />                                                  
+                    </td>                                                       
+                </tr>                                                           
+            </table>                                                            
+        </td>                                                                   
+    </tr>                                                                       
+</table>                                                                        
+</form>                                                                         
+</body>                                                                         
+</html>                                                                         
