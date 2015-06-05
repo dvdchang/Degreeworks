@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<$ILCGIMASK REPORT=WEB70>   >>> flex webtreqer cannot use this next line
+<?xml-stylesheet type="text/xsl" 
+              href="<$ILUCX SRC=UCXRPT036 KEY=<$ILCGI-REPORT> BYTES=31:20>" ?>
+</$ILCGIMASK>
+<Report 
+ rptInstitutionName="<$ILENV-SRNDWAUDITTITLE>"
+ rptReportName="<$ILUCX SRC=UCXRPT036 KEY=<$ILCGI-REPORT> BYTES=1:30>"
+ rptReportCode="<$ILCGI-REPORT>"              
+ rptStudentName="Web TreQer User"
+ rptUsersId="TREQERUSER"
+ rptUserClass="<$IL*DGWUSERCLASS>"
+                                                   
+ rptShowStudentSystemGPA="<$ILUCX SRC=UCXRPT036 KEY=<$ILCGI-REPORT> BYTES=85:1>"
+                                                                                
+ rptShowBlockRemarks="<$ILUCX SRC=UCXRPT036 KEY=<$ILCGI-REPORT> BYTES=51:1>"
+ rptShowQualifierText="<$ILUCX SRC=UCXRPT036 KEY=<$ILCGI-REPORT> BYTES=52:1>"
+ rptShowQualifierAdvice="<$ILUCX SRC=UCXRPT036 KEY=<$ILCGI-REPORT> BYTES=55:1>"
+                                                                                
+ rptShowRuleRemarks="<$ILUCX SRC=UCXRPT036 KEY=<$ILCGI-REPORT> BYTES=56:1>"
+ rptShowRuleExceptions="<$ILUCX SRC=UCXRPT036 KEY=<$ILCGI-REPORT> BYTES=58:1>"
+ rptShowRuleAdvice="<$ILUCX SRC=UCXRPT036 KEY=<$ILCGI-REPORT> BYTES=59:1>"
+ rptShowRuleText="<$ILUCX SRC=UCXRPT036 KEY=<$ILCGI-REPORT> BYTES=60:1>"
+ rptShowRuleClassesApplied="<$ILUCX SRC=UCXRPT036 KEY=<$ILCGI-REPORT> BYTES=61:1>"
+                                                                                
+ rptShowFallThroughSection="<$ILUCX SRC=UCXRPT036 KEY=<$ILCGI-REPORT> BYTES=62:1>"
+ rptShowInsufficientSection="<$ILUCX SRC=UCXRPT036 KEY=<$ILCGI-REPORT> BYTES=63:1>"
+ rptShowOverTheLimitSection="<$ILUCX SRC=UCXRPT036 KEY=<$ILCGI-REPORT> BYTES=64:1>"
+ rptShowInProgressSection="<$ILUCX SRC=UCXRPT036 KEY=<$ILCGI-REPORT> BYTES=65:1>"
+ rptShowNotesSection="<$ILUCX SRC=UCXRPT036 KEY=<$ILCGI-REPORT> BYTES=66:1>"
+ rptShowExceptionsSection="<$ILUCX SRC=UCXRPT036 KEY=<$ILCGI-REPORT> BYTES=67:1>"
+ rptShowErrorsSection="<$ILUCX SRC=UCXRPT036 KEY=<$ILCGI-REPORT> BYTES=68:1>"
+ rptShowSplitCreditsSection="<$ILUCX SRC=UCXRPT036 KEY=<$ILCGI-REPORT> BYTES=82:1>"
+                                                                                
+ rptShowLegend = "<$ILUCX SRC=UCXRPT036 KEY=<$ILCGI-REPORT> BYTES=69:1>"
+ rptShowDisclaimer = "<$ILUCX SRC=UCXRPT036 KEY=<$ILCGI-REPORT> BYTES=70:1>"
+ rptShowProgressBar = "<$ILUCX SRC=UCXRPT036 KEY=<$ILCGI-REPORT> BYTES=71:1>"
+                                                                                
+ rptShowOR-ANDsInsteadOfComma-Plusses="<$ILUCX SRC=UCXRPT036 KEY=<$ILCGI-REPORT> BYTES=72:1>"
+ rptPrereqIndicator="<$ILUCX SRC=UCXRPT036 KEY=<$ILCGI-REPORT> BYTES=73:1>"
+ rptShowAdviceLink="<$ILUCX SRC=UCXRPT036 KEY=<$ILCGI-REPORT> BYTES=74:1>"
+ rptShowClassCourseKeysOnly="<$ILUCX SRC=UCXRPT036 KEY=<$ILCGI-REPORT> BYTES=75:1>"
+ rptShowStudentHeader="<$ILUCX SRC=UCXRPT036 KEY=<$ILCGI-REPORT> BYTES=76:1>"
+ rptShowStudentAlerts="<$ILUCX SRC=UCXRPT036 KEY=<$ILCGI-REPORT> BYTES=77:1>"
+                                                                                
+ rptCFG020AuditTitleStyle="<$ILUCX SRC=UCXCFG020 KEY=WEB BYTES=9:1>"
+ rptCFG020MaskStudentID="<$ILUCX SRC=UCXCFG020 KEY=WEB BYTES=15:1>"
+ rptDateFormat="<$ILUCX SRC=UCXCFG020 KEY=WEB BYTES=21:3>"
+
+ rptCreditsLiteral="<$ILUCX SRC=UCXSCR001 KEY=CREDITS BYTES=1:30>"
+ rptCreditSingular="<$ILUCX SRC=UCXSCR001 KEY=CREDIT  BYTES=1:30>"
+ rptCatYrLit="<$ILUCX SRC=UCXSCR001 KEY=CATYR   BYTES=1:30>"
+                                                                                
+ rptHideInnerGroupLabels="<$ILUCX SRC=UCXRPT036 KEY=<$ILCGI-REPORT> BYTES=79:1>"
+ rptHideSubsetLabels="<$ILUCX SRC=UCXRPT036 KEY=<$ILCGI-REPORT> BYTES=80:1>"
+ rptIncludeBlocks="<$ILUCX SRC=UCXRPT036 KEY=<$ILCGI-REPORT> BYTES=83:1>"
+ rptAuditAction="Transfer Equivalency Self Service Audit"
+> <!-- report -->
+
+<!-- Run an audit for this transfer data -->
+<$ILSERVER SERVER=DAP09 SERVICE=SDTREQER
+  NVP=ACTION=TRANSFERAUDIT&STUID=TREQERUSER
+>
+
+<AttrList> <!-- CMU CMU Localization  -->
+<$ILPICK SRC=UCXSTU050 sortbyvalue=1:30
+  text={<Attribute Code="}  key=1:4  text={" Description="}  value=1:30  text={" />}
+>
+</AttrList>
+</Report>
+
+<$ILENVMASK DWDEBUG=1>
+<!-- 
+ Copyright 1995-2012 Ellucian Company L.P. and its affiliates. 
+ $Id: //Tuxedo/RELEASE/Product/server/shpscripts/TREQERAUDIT#1 $ -->
+</$ILENVMASK>

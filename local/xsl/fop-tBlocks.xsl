@@ -1,7 +1,8 @@
 <xsl:stylesheet version="1.0"
   xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
   xmlns:fo="http://www.w3.org/1999/XSL/Format"
-  xmlns:fox="http://xml.apache.org/fop/extensions">
+  xmlns:fox="http://xml.apache.org/fop/extensions"
+  xmlns:ext="http://exslt.org/common" exclude-result-prefixes="ext">
 <!-- $Id: //Tuxedo/RELEASE/Product/release/server/admin/xsl/fop-tBlocks.xsl#10 $ -->
 
 <xsl:template name="tBlocks">
@@ -1861,6 +1862,8 @@
 	</fo:table-row>
 </xsl:template>
 
+
+
 <!-- tCourseAdvice - used for displaying courses in requirement advice -->
 <xsl:template name="tCourseAdvice">
   <!-- AdviceLink: Link to a new browser when user clicks on class in advice -->
@@ -1880,8 +1883,22 @@
 
   <xsl:if test="@PrereqExists='Y' and /Report/@rptPrereqIndicator='Y'">*<!-- asterisk --></xsl:if>
   <xsl:if test="@With_advice">
-   <xsl:text>&#160;</xsl:text> <!-- space --> 
-   <xsl:value-of select="@With_advice"/> 
+	
+  <!-- CMU Localization ===  BEGIN BEGIN BEGIN -->   
+   
+      <xsl:for-each select="With[@Code='ATTRIBUTE']">
+      <xsl:for-each select="Value">
+	  
+			<xsl:variable name="classabrev" select="." />  <!-- get course abbreviation, eg. GENS -->
+			<xsl:value-of select="/Report/AttrList/Attribute[normalize-space(@Code)=$classabrev]/@Description"/>	    
+			<xsl:if test="position()!=last()">&#160;<xsl:value-of select="@Connector" />&#160;</xsl:if>
+      </xsl:for-each>
+      </xsl:for-each>  
+    <!-- CMU Localization ===  END END END -->           
+  
+    <!--xsl:text>&#160;</xsl:text> 
+     alert(<xsl:value-of select="@With_advice"/>) -->
+	 
   </xsl:if>
 </xsl:template>
 
